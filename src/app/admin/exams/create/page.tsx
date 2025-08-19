@@ -1,0 +1,210 @@
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useFieldArray, useForm } from "react-hook-form";
+import { z } from "zod";
+import { useRouter } from 'next/navigation';
+import { PlusCircle, Trash2 } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+
+const optionSchema = z.object({
+  text: z.string().min(1, "Option text cannot be empty."),
+});
+
+const questionSchema = z.object({
+  text: z.string().min(1, "Question text cannot be empty."),
+  options: z.array(optionSchema).min(2, "At least two options are required."),
+  correctOptionIndex: z.string().min(1, "Please select a correct answer."),
+});
+
+const examSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters."),
+  description: z.string().optional(),
+  duration: z.coerce.number().min(1, "Duration must be at least 1 minute."),
+  questions: z.array(questionSchema).min(1, "At least one question is required."),
+});
+
+type ExamFormValues = z.infer<typeof examSchema>;
+
+export default function CreateExamPage() {
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const form = useForm<ExamFormValues>({
+    resolver: zodResolver(examSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      duration: 60,
+      questions: [{ text: "", options: [{ text: "" }, { text: "" }], correctOptionIndex: "" }],
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "questions",
+  });
+  
+  function onSubmit(data: ExamFormValues) {
+    console.log(data);
+    toast({
+      title: "Exam Created!",
+      description: `The exam "${data.title}" has been successfully created.`,
+    });
+    router.push("/admin/exams");
+  }
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold">Create Exam</h1>
+        <p className="text-muted-foreground">Fill in the details to create a new exam.</p>
+      </div>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Exam Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Exam Title</FormLabel>
+                    <FormControl><Input placeholder="e.g., Physics 101 Midterm" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl><Textarea placeholder="Describe the exam..." {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="duration"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Duration (in minutes)</FormLabel>
+                    <FormControl><Input type="number" placeholder="60" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Questions</CardTitle>
+              <CardDescription>Add questions and options for this exam.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {fields.map((field, index) => (
+                <div key={field.id} className="space-y-4 rounded-lg border p-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">Question {index + 1}</h3>
+                    <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name={`questions.${index}.text`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Question Text</FormLabel>
+                        <FormControl><Textarea placeholder="What is the capital of France?" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`questions.${index}.correctOptionIndex`}
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel>Options (select the correct one)</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex flex-col space-y-2"
+                          >
+                            <QuestionOptions control={form.control} questionIndex={index} />
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              ))}
+              <Button type="button" variant="outline" onClick={() => append({ text: "", options: [{ text: "" }, { text: "" }], correctOptionIndex: "" })}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Question
+              </Button>
+            </CardContent>
+          </Card>
+          
+          <div className="flex justify-end">
+            <Button type="submit">Create Exam</Button>
+          </div>
+        </form>
+      </Form>
+    </div>
+  );
+}
+
+function QuestionOptions({ control, questionIndex }: { control: any; questionIndex: number }) {
+  const { fields } = useFieldArray({
+    control,
+    name: `questions.${questionIndex}.options`,
+  });
+
+  return (
+    <>
+      {fields.map((optionField, optionIndex) => (
+        <FormField
+          key={optionField.id}
+          control={control}
+          name={`questions.${questionIndex}.options.${optionIndex}.text`}
+          render={({ field }) => (
+            <FormItem className="flex items-center space-x-3 space-y-0">
+              <FormControl>
+                <div className="flex items-center w-full gap-2">
+                  <RadioGroupItem value={String(optionIndex)} />
+                  <Input {...field} placeholder={`Option ${optionIndex + 1}`} />
+                </div>
+              </FormControl>
+            </FormItem>
+          )}
+        />
+      ))}
+    </>
+  );
+}
