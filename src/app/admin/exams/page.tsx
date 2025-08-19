@@ -1,4 +1,9 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,23 +20,66 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Link2, Trash2, Edit } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
 
-const exams = [
-  { id: "1", title: "Physics 101", questions: 25, duration: 60 },
-  { id: "2", title: "Calculus II", questions: 20, duration: 90 },
-  { id: "3", title: "Intro to Chemistry", questions: 30, duration: 45 },
-  { id: "4", title: "World History", questions: 50, duration: 60 },
-];
+interface Exam {
+  id: string;
+  title: string;
+  questions: any[];
+  duration: number;
+}
 
 export default function ExamsPage() {
+  const [exams, setExams] = useState<Exam[]>([]);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchExams = async () => {
+      const querySnapshot = await getDocs(collection(db, "exams"));
+      const examsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Exam));
+      setExams(examsData);
+    };
+    fetchExams();
+  }, []);
+
+  const copyInvitationLink = (examId: string) => {
+    const link = `${window.location.origin}/candidate/exams/${examId}`;
+    navigator.clipboard.writeText(link);
+    toast({
+      title: "Link Copied",
+      description: "The invitation link has been copied to your clipboard.",
+    });
+  };
+
+  const deleteExam = async (examId: string) => {
+    if (confirm("Are you sure you want to delete this exam?")) {
+      try {
+        await deleteDoc(doc(db, "exams", examId));
+        setExams(exams.filter(exam => exam.id !== examId));
+        toast({
+          title: "Exam Deleted",
+          description: "The exam has been successfully deleted.",
+        });
+      } catch (error: any) {
+        toast({
+          variant: "destructive",
+          title: "Error deleting exam",
+          description: error.message,
+        });
+      }
+    }
+  };
+
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -67,7 +115,7 @@ export default function ExamsPage() {
               {exams.map((exam) => (
                 <TableRow key={exam.id}>
                   <TableCell className="font-medium">{exam.title}</TableCell>
-                  <TableCell>{exam.questions}</TableCell>
+                  <TableCell>{exam.questions.length}</TableCell>
                   <TableCell>{exam.duration}</TableCell>
                   <TableCell>
                     <DropdownMenu>
@@ -79,8 +127,19 @@ export default function ExamsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => copyInvitationLink(exam.id)}>
+                          <Link2 className="mr-2 h-4 w-4" />
+                          Copy Invite Link
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => deleteExam(exam.id)} className="text-destructive">
+                           <Trash2 className="mr-2 h-4 w-4" />
+                           Delete
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

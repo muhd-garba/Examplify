@@ -5,6 +5,8 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from 'next/navigation';
 import { PlusCircle, Trash2 } from "lucide-react";
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +21,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 
 const optionSchema = z.object({
@@ -60,13 +61,28 @@ export default function CreateExamPage() {
     name: "questions",
   });
   
-  function onSubmit(data: ExamFormValues) {
-    console.log(data);
-    toast({
-      title: "Exam Created!",
-      description: `The exam "${data.title}" has been successfully created.`,
-    });
-    router.push("/admin/exams");
+  async function onSubmit(data: ExamFormValues) {
+    try {
+      const examData = {
+        ...data,
+        questions: data.questions.map(q => ({
+          ...q,
+          correctOptionIndex: parseInt(q.correctOptionIndex, 10)
+        }))
+      };
+      await addDoc(collection(db, "exams"), examData);
+      toast({
+        title: "Exam Created!",
+        description: `The exam "${data.title}" has been successfully created.`,
+      });
+      router.push("/admin/exams");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Failed to create exam",
+        description: error.message,
+      });
+    }
   }
 
   return (
@@ -181,13 +197,13 @@ export default function CreateExamPage() {
 }
 
 function QuestionOptions({ control, questionIndex }: { control: any; questionIndex: number }) {
-  const { fields } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control,
     name: `questions.${questionIndex}.options`,
   });
 
   return (
-    <>
+    <div className="space-y-2">
       {fields.map((optionField, optionIndex) => (
         <FormField
           key={optionField.id}
@@ -199,12 +215,26 @@ function QuestionOptions({ control, questionIndex }: { control: any; questionInd
                 <div className="flex items-center w-full gap-2">
                   <RadioGroupItem value={String(optionIndex)} />
                   <Input {...field} placeholder={`Option ${optionIndex + 1}`} />
+                   {fields.length > 2 && (
+                    <Button type="button" variant="ghost" size="icon" onClick={() => remove(optionIndex)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  )}
                 </div>
               </FormControl>
             </FormItem>
           )}
         />
       ))}
-    </>
+       <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={() => append({ text: "" })}
+        className="mt-2"
+      >
+        <PlusCircle className="mr-2 h-4 w-4" /> Add Option
+      </Button>
+    </div>
   );
 }
