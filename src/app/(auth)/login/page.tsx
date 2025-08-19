@@ -5,6 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from 'next/navigation';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { auth } from '@/lib/firebase';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -43,17 +45,47 @@ export default function LoginPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Mock login logic
-    if (values.email.startsWith("admin")) {
-      router.push('/admin/dashboard');
-    } else {
-      router.push('/candidate/dashboard');
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+      const user = userCredential.user;
+      // This is a mock check. In a real app, you'd have roles stored in Firestore.
+      if (values.email.startsWith("admin")) {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/candidate/dashboard');
+      }
+      toast({
+        title: "Login Successful",
+        description: "Welcome back!",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: error.message,
+      });
     }
-    toast({
-      title: "Login Successful",
-      description: "Welcome back!",
-    });
+  }
+
+  async function handleGoogleSignIn() {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      // You would typically handle user creation/login in your backend/Firestore here
+      router.push('/candidate/dashboard');
+      toast({
+        title: "Google Sign-In Successful",
+        description: `Welcome, ${user.displayName}!`,
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Google Sign-In Failed",
+        description: error.message,
+      });
+    }
   }
 
   return (
@@ -95,7 +127,7 @@ export default function LoginPage() {
           </form>
         </Form>
         <Separator className="my-6" />
-        <Button variant="outline" className="w-full">
+        <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
           <svg className="mr-2 h-4 w-4" viewBox="0 0 48 48">
             <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039L38.804 8.841C34.521 4.792 29.632 2.5 24 2.5C11.418 2.5 1.5 12.418 1.5 25s9.918 22.5 22.5 22.5S46.5 37.582 46.5 25c0-2.384-.216-4.661-.609-6.917z"></path>
             <path fill="#FF3D00" d="m6.306 14.691l6.571 4.819C14.655 15.108 18.961 13 24 13c3.059 0 5.842 1.154 7.961 3.039l5.843-5.843A11.977 11.977 0 0 0 24 2.5C18.319 2.5 13.186 5.343 9.389 9.611z"></path>

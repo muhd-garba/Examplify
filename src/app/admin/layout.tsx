@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   BookCopy,
   LayoutDashboard,
@@ -10,6 +10,9 @@ import {
   Users,
   BarChart3,
 } from 'lucide-react';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 import {
   Sidebar,
@@ -40,6 +43,25 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
+      router.push('/login');
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Logout Failed",
+        description: error.message,
+      });
+    }
+  };
 
   return (
     <SidebarProvider>
@@ -73,22 +95,20 @@ export default function AdminLayout({
                 </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <Link href="/login">
-                <SidebarMenuButton>
+                <SidebarMenuButton onClick={handleLogout}>
                   <LogOut />
                   <span>Logout</span>
                 </SidebarMenuButton>
-              </Link>
             </SidebarMenuItem>
           </SidebarMenu>
           <div className="flex items-center gap-3 p-2 group-data-[collapsible=icon]:justify-center">
             <Avatar className="size-9">
-              <AvatarImage src="https://placehold.co/40x40.png" alt="Admin" data-ai-hint="person" />
+              <AvatarImage src={auth.currentUser?.photoURL || "https://placehold.co/40x40.png"} alt="Admin" data-ai-hint="person" />
               <AvatarFallback>AD</AvatarFallback>
             </Avatar>
             <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-              <p className="text-sm font-medium">Admin User</p>
-              <p className="text-xs text-muted-foreground">admin@examplify.com</p>
+              <p className="text-sm font-medium">{auth.currentUser?.displayName || "Admin User"}</p>
+              <p className="text-xs text-muted-foreground">{auth.currentUser?.email || "admin@examplify.com"}</p>
             </div>
           </div>
         </SidebarFooter>

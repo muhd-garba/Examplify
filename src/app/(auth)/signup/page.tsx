@@ -5,6 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from 'next/navigation';
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { auth } from '@/lib/firebase';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -54,13 +56,41 @@ export default function SignupPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Mock signup logic
-    toast({
-      title: "Account Created",
-      description: "You have successfully signed up.",
-    });
-    router.push('/login');
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      await createUserWithEmailAndPassword(auth, values.email, values.password);
+      toast({
+        title: "Account Created",
+        description: "You have successfully signed up.",
+      });
+      router.push('/login');
+    } catch (error: any) {
+       toast({
+        variant: "destructive",
+        title: "Sign-up Failed",
+        description: error.message,
+      });
+    }
+  }
+
+  async function handleGoogleSignUp() {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      // You would typically handle user creation in your backend/Firestore here
+      toast({
+        title: "Account Created",
+        description: `Welcome, ${user.displayName}!`,
+      });
+      router.push('/login');
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Google Sign-Up Failed",
+        description: error.message,
+      });
+    }
   }
   
   return (
@@ -136,7 +166,7 @@ export default function SignupPage() {
           </form>
         </Form>
         <Separator className="my-6" />
-        <Button variant="outline" className="w-full">
+        <Button variant="outline" className="w-full" onClick={handleGoogleSignUp}>
           <svg className="mr-2 h-4 w-4" viewBox="0 0 48 48">
             <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039L38.804 8.841C34.521 4.792 29.632 2.5 24 2.5C11.418 2.5 1.5 12.418 1.5 25s9.918 22.5 22.5 22.5S46.5 37.582 46.5 25c0-2.384-.216-4.661-.609-6.917z"></path>
             <path fill="#FF3D00" d="m6.306 14.691l6.571 4.819C14.655 15.108 18.961 13 24 13c3.059 0 5.842 1.154 7.961 3.039l5.843-5.843A11.977 11.977 0 0 0 24 2.5C18.319 2.5 13.186 5.343 9.389 9.611z"></path>
