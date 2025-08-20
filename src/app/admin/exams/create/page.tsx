@@ -22,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
+import { Label } from "@/components/ui/label";
 
 const optionSchema = z.object({
   text: z.string().min(1, "Option text cannot be empty."),
@@ -30,7 +31,7 @@ const optionSchema = z.object({
 const questionSchema = z.object({
   text: z.string().min(1, "Question text cannot be empty."),
   options: z.array(optionSchema).min(2, "At least two options are required."),
-  correctOptionIndex: z.string().min(1, "Please select a correct answer."),
+  correctOptionIndex: z.string({ required_error: "Please select a correct answer." }),
 });
 
 const examSchema = z.object({
@@ -212,15 +213,13 @@ export default function CreateExamPage() {
                     render={({ field }) => (
                       <FormItem className="space-y-3">
                         <FormLabel>Options (select the correct one)</FormLabel>
-                        <FormControl>
                           <RadioGroup
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                             className="flex flex-col space-y-2"
                           >
-                            <QuestionOptions control={form.control} questionIndex={index} />
+                            <QuestionOptions form={form} questionIndex={index} />
                           </RadioGroup>
-                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -242,9 +241,9 @@ export default function CreateExamPage() {
   );
 }
 
-function QuestionOptions({ control, questionIndex }: { control: any; questionIndex: number }) {
+function QuestionOptions({ form, questionIndex }: { form: any; questionIndex: number }) {
   const { fields, append, remove } = useFieldArray({
-    control,
+    control: form.control,
     name: `questions.${questionIndex}.options`,
   });
 
@@ -253,14 +252,16 @@ function QuestionOptions({ control, questionIndex }: { control: any; questionInd
       {fields.map((optionField, optionIndex) => (
         <FormField
           key={optionField.id}
-          control={control}
+          control={form.control}
           name={`questions.${questionIndex}.options.${optionIndex}.text`}
           render={({ field }) => (
-            <FormItem className="flex items-center space-x-3 space-y-0">
+            <FormItem>
               <FormControl>
                 <div className="flex items-center w-full gap-2">
-                  <RadioGroupItem value={String(optionIndex)} />
-                  <Input {...field} placeholder={`Option ${optionIndex + 1}`} />
+                   <RadioGroupItem value={String(optionIndex)} id={`${questionIndex}-${optionIndex}`} />
+                   <Label htmlFor={`${questionIndex}-${optionIndex}`} className="flex-1">
+                    <Input {...field} placeholder={`Option ${optionIndex + 1}`} />
+                  </Label>
                    {fields.length > 2 && (
                     <Button type="button" variant="ghost" size="icon" onClick={() => remove(optionIndex)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
@@ -268,6 +269,7 @@ function QuestionOptions({ control, questionIndex }: { control: any; questionInd
                   )}
                 </div>
               </FormControl>
+              <FormMessage/>
             </FormItem>
           )}
         />
