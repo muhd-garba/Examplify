@@ -1,35 +1,47 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Admins can read and write all documents
+  
+    // Helper function to check if a user is an admin.
+    // It checks for a custom claim 'admin' on the user's auth token.
+    // This claim needs to be set, for example, through a Cloud Function when a user signs up.
     function isAdmin() {
-      return request.auth != null && request.auth.token.email.matches('admin@.*');
+      return request.auth.token.admin == true;
     }
 
-    // Any authenticated user can create a user document for themselves
+    // Helper function to check if the user is authenticated.
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Admins can manage all user documents
     match /users/{userId} {
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow read, update: if request.auth != null && request.auth.uid == userId;
-    }
-    
-    match /{document=**} {
       allow read, write: if isAdmin();
-    }
-    
-    // Candidates can read exams if they are invited
-    match /exams/{examId} {
-      allow read: if request.auth != null && exists(/databases/$(database)/documents/invitations/$(request.auth.uid + '_' + examId));
+      // A user can read their own document
+      allow read: if isAuthenticated() && request.auth.uid == userId;
     }
 
-    // Candidates can read invitations that are for them
-    match /invitations/{invitationId} {
-       allow read: if request.auth != null && resource.data.candidateEmail == request.auth.token.email;
+    // Admins can read, write, and delete exams.
+    // Authenticated candidates can read exams if they have an invitation.
+    match /exams/{examId} {
+      allow read, write, delete: if isAdmin();
+      allow read: if isAuthenticated() && exists(/databases/$(database)/documents/invitations/$(request.auth.token.email + '_' + examId));
     }
-    
-    // Candidates can write their own results
+
+    // Admins can manage all invitations.
+    // Candidates can read their own invitations.
+    match /invitations/{invitationId} {
+      allow read, write, delete: if isAdmin();
+      allow read: if isAuthenticated() && invitationId == request.auth.token.email + '_' + resource.data.examId;
+    }
+
+    // Admins can read all results.
+    // Candidates can create their own results and read them.
     match /results/{resultId} {
-      allow create: if request.auth != null && request.resource.data.candidateId == request.auth.uid;
-      allow read: if request.auth != null && resource.data.candidateId == request.auth.uid;
+      allow read, delete: if isAdmin();
+      allow create: if isAuthenticated();
+      allow read: if isAuthenticated() && request.auth.uid == resource.data.candidateId;
     }
   }
 }
