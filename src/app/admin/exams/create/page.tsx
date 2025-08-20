@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from 'next/navigation';
 import { PlusCircle, Trash2 } from "lucide-react";
@@ -72,7 +72,8 @@ export default function CreateExamPage() {
         description: data.description,
         duration: data.duration,
         questions: data.questions.map(q => ({
-          ...q,
+          text: q.text,
+          options: q.options,
           correctOptionIndex: parseInt(q.correctOptionIndex, 10)
         }))
       };
@@ -215,7 +216,7 @@ export default function CreateExamPage() {
                         <FormLabel>Options (select the correct one)</FormLabel>
                           <RadioGroup
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            value={field.value}
                             className="flex flex-col space-y-2"
                           >
                             <QuestionOptions form={form} questionIndex={index} />
@@ -247,6 +248,22 @@ function QuestionOptions({ form, questionIndex }: { form: any; questionIndex: nu
     name: `questions.${questionIndex}.options`,
   });
 
+  const { setValue } = form;
+  const watchedOptions = useWatch({
+      control: form.control,
+      name: `questions.${questionIndex}.options`
+  });
+
+  const handleOptionRemove = (optionIndex: number) => {
+    // Check if the removed option was the selected correct answer
+    const currentCorrectIndex = form.getValues(`questions.${questionIndex}.correctOptionIndex`);
+    if (String(optionIndex) === currentCorrectIndex) {
+        setValue(`questions.${questionIndex}.correctOptionIndex`, "", { shouldValidate: true });
+    }
+    remove(optionIndex);
+  };
+
+
   return (
     <div className="space-y-2">
       {fields.map((optionField, optionIndex) => (
@@ -263,7 +280,7 @@ function QuestionOptions({ form, questionIndex }: { form: any; questionIndex: nu
                     <Input {...field} placeholder={`Option ${optionIndex + 1}`} />
                   </Label>
                    {fields.length > 2 && (
-                    <Button type="button" variant="ghost" size="icon" onClick={() => remove(optionIndex)}>
+                    <Button type="button" variant="ghost" size="icon" onClick={() => handleOptionRemove(optionIndex)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   )}

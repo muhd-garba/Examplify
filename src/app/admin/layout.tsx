@@ -77,7 +77,7 @@ export default function AdminLayout({
             {navItems.map((item) => (
               <SidebarMenuItem key={item.href}>
                 <Link href={item.href}>
-                  <SidebarMenuButton isActive={pathname === item.href} tooltip={item.label}>
+                  <SidebarMenuButton isActive={pathname.startsWith(item.href)} tooltip={item.label}>
                     <item.icon />
                     <span>{item.label}</span>
                   </SidebarMenuButton>
@@ -89,10 +89,12 @@ export default function AdminLayout({
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-                <SidebarMenuButton>
+              <Link href="/admin/settings">
+                <SidebarMenuButton isActive={pathname === '/admin/settings'}>
                   <Settings />
                   <span>Settings</span>
                 </SidebarMenuButton>
+              </Link>
             </SidebarMenuItem>
             <SidebarMenuItem>
                 <SidebarMenuButton onClick={handleLogout}>
