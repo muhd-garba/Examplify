@@ -46,10 +46,25 @@ export default function LoginPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    // Check for hardcoded credentials first
+    if (
+        (values.email === "admin@examplify.com" || values.email === "candidate@examplify.com") &&
+        values.password === "password"
+    ) {
+        if (values.email.startsWith("admin")) {
+            router.push('/admin/dashboard');
+        } else {
+            router.push('/candidate/dashboard');
+        }
+        toast({
+            title: "Login Successful",
+            description: "Welcome back!",
+        });
+        return;
+    }
+
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
-      const user = userCredential.user;
-      // This is a mock check. In a real app, you'd have roles stored in Firestore.
+      await signInWithEmailAndPassword(auth, values.email, values.password);
       if (values.email.startsWith("admin")) {
         router.push('/admin/dashboard');
       } else {
