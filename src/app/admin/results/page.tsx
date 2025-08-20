@@ -1,3 +1,8 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,18 +19,64 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Download, Filter } from "lucide-react";
+import { Download, Filter, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { format } from 'date-fns';
 
-const results = [
-  { id: "1", candidate: "Alice Johnson", exam: "Physics 101", score: 85, status: "Passed", date: "2023-10-26" },
-  { id: "2", candidate: "Bob Williams", exam: "Calculus II", score: 92, status: "Passed", date: "2023-10-25" },
-  { id: "3", candidate: "Charlie Brown", exam: "Intro to Chemistry", score: 45, status: "Failed", date: "2023-10-25" },
-  { id: "4", candidate: "Diana Miller", exam: "World History", score: 76, status: "Passed", date: "2023-10-24" },
-  { id: "5", candidate: "Alice Johnson", exam: "Calculus II", score: 78, status: "Passed", date: "2023-10-23" },
-];
+interface Result {
+  id: string;
+  candidateEmail: string;
+  examTitle: string;
+  score: number;
+  totalQuestions: number;
+  status: string;
+  submittedAt: {
+    seconds: number;
+    nanoseconds: number;
+  };
+}
 
 export default function ResultsPage() {
+  const [results, setResults] = useState<Result[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchResults = async () => {
+      try {
+        const q = query(collection(db, "results"), orderBy("submittedAt", "desc"));
+        const querySnapshot = await getDocs(q);
+        const resultsData = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          const score = data.score;
+          const totalQuestions = data.totalQuestions;
+          const percentage = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
+          return {
+            id: doc.id,
+            ...data,
+            status: percentage >= 50 ? "Passed" : "Failed",
+          } as Result;
+        });
+        setResults(resultsData);
+      } catch (error) {
+        console.error("Error fetching results: ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchResults();
+  }, []);
+
+  const formatDate = (timestamp: { seconds: number, nanoseconds: number }) => {
+    if (!timestamp) return 'N/A';
+    const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
+    return format(date, 'PPP p');
+  };
+  
+  const calculatePercentage = (score: number, total: number) => {
+    if (total === 0) return 0;
+    return Math.round((score / total) * 100);
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -49,6 +100,11 @@ export default function ResultsPage() {
           <CardDescription>A comprehensive list of all exam submissions.</CardDescription>
         </CardHeader>
         <CardContent>
+          {loading ? (
+             <div className="flex justify-center items-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -62,19 +118,20 @@ export default function ResultsPage() {
             <TableBody>
               {results.map((result) => (
                 <TableRow key={result.id}>
-                  <TableCell className="font-medium">{result.candidate}</TableCell>
-                  <TableCell>{result.exam}</TableCell>
-                  <TableCell>{result.score}</TableCell>
+                  <TableCell className="font-medium">{result.candidateEmail}</TableCell>
+                  <TableCell>{result.examTitle}</TableCell>
+                  <TableCell>{calculatePercentage(result.score, result.totalQuestions)}%</TableCell>
                   <TableCell>
                      <Badge variant={result.status === "Passed" ? "default" : "destructive"} className={`${result.status === "Passed" ? 'bg-green-500' : ''}`}>
                       {result.status}
                     </Badge>
                   </TableCell>
-                  <TableCell>{result.date}</TableCell>
+                  <TableCell>{formatDate(result.submittedAt)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+          )}
         </CardContent>
       </Card>
     </div>

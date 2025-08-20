@@ -5,7 +5,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from 'next/navigation';
 import { PlusCircle, Trash2 } from "lucide-react";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, writeBatch, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 import { Button } from "@/components/ui/button";
@@ -38,6 +38,7 @@ const examSchema = z.object({
   description: z.string().optional(),
   duration: z.coerce.number().min(1, "Duration must be at least 1 minute."),
   questions: z.array(questionSchema).min(1, "At least one question is required."),
+  candidateEmails: z.string().min(1, "Please enter at least one candidate email."),
 });
 
 type ExamFormValues = z.infer<typeof examSchema>;
@@ -53,6 +54,7 @@ export default function CreateExamPage() {
       description: "",
       duration: 60,
       questions: [{ text: "", options: [{ text: "" }, { text: "" }], correctOptionIndex: "" }],
+      candidateEmails: "",
     },
   });
 
@@ -63,17 +65,36 @@ export default function CreateExamPage() {
   
   async function onSubmit(data: ExamFormValues) {
     try {
+      // 1. Create the exam document
       const examData = {
-        ...data,
+        title: data.title,
+        description: data.description,
+        duration: data.duration,
         questions: data.questions.map(q => ({
           ...q,
           correctOptionIndex: parseInt(q.correctOptionIndex, 10)
         }))
       };
-      await addDoc(collection(db, "exams"), examData);
+      const examDocRef = await addDoc(collection(db, "exams"), examData);
+
+      // 2. Create invitations in a batch
+      const batch = writeBatch(db);
+      const emails = data.candidateEmails.split(',').map(email => email.trim()).filter(email => email);
+      
+      emails.forEach(email => {
+        const invitationRef = doc(collection(db, "invitations"));
+        batch.set(invitationRef, {
+          candidateEmail: email,
+          examId: examDocRef.id,
+          status: "invited"
+        });
+      });
+
+      await batch.commit();
+
       toast({
         title: "Exam Created!",
-        description: `The exam "${data.title}" has been successfully created.`,
+        description: `The exam "${data.title}" has been created and invitations sent.`,
       });
       router.push("/admin/exams");
     } catch (error: any) {
@@ -89,7 +110,7 @@ export default function CreateExamPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold">Create Exam</h1>
-        <p className="text-muted-foreground">Fill in the details to create a new exam.</p>
+        <p className="text-muted-foreground">Fill in the details to create a new exam and invite candidates.</p>
       </div>
 
       <Form {...form}>
@@ -128,6 +149,31 @@ export default function CreateExamPage() {
                   <FormItem>
                     <FormLabel>Duration (in minutes)</FormLabel>
                     <FormControl><Input type="number" placeholder="60" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+           <Card>
+            <CardHeader>
+              <CardTitle>Invite Candidates</CardTitle>
+              <CardDescription>Enter candidate email addresses, separated by commas.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="candidateEmails"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Candidate Emails</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="candidate1@example.com, candidate2@example.com"
+                        {...field}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -188,7 +234,7 @@ export default function CreateExamPage() {
           </Card>
           
           <div className="flex justify-end">
-            <Button type="submit">Create Exam</Button>
+            <Button type="submit">Create Exam & Send Invites</Button>
           </div>
         </form>
       </Form>

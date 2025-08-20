@@ -1,40 +1,68 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, XCircle, Award } from "lucide-react";
+import { CheckCircle2, XCircle, Award, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
-const mockResult = {
-  score: 2,
-  totalQuestions: 3,
-  questions: [
-    {
-      text: "What is the unit of force?",
-      options: ["Watt", "Newton", "Joule", "Pascal"],
-      userAnswer: "Newton",
-      correctAnswer: "Newton",
-    },
-    {
-      text: "What is the formula for acceleration?",
-      options: ["v/t", "d/t", "F/m", "m*v"],
-      userAnswer: "d/t",
-      correctAnswer: "F/m",
-    },
-    {
-      text: "Which planet is known as the Red Planet?",
-      options: ["Earth", "Mars", "Jupiter", "Venus"],
-      userAnswer: "Mars",
-      correctAnswer: "Mars",
-    },
-  ],
-};
+interface ResultQuestion {
+  text: string;
+  userAnswer: string | null;
+  correctAnswer: string;
+}
+
+interface ResultData {
+  score: number;
+  totalQuestions: number;
+  questions: ResultQuestion[];
+}
 
 export default function ResultPage() {
-  const percentage = Math.round((mockResult.score / mockResult.totalQuestions) * 100);
+  const searchParams = useSearchParams();
+  const resultId = searchParams.get('resultId');
+  const [result, setResult] = useState<ResultData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (resultId) {
+      const storedResult = localStorage.getItem(`result-${resultId}`);
+      if (storedResult) {
+        setResult(JSON.parse(storedResult));
+        // Clean up localStorage after displaying the result
+        localStorage.removeItem(`result-${resultId}`);
+      }
+    }
+    setLoading(false);
+  }, [resultId]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!result) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-8 text-center">
+        <h1 className="text-3xl font-bold">Result Not Found</h1>
+        <p className="text-muted-foreground">The result you are looking for could not be found. It might have already been viewed.</p>
+        <Link href="/candidate/dashboard">
+          <Button>Back to Dashboard</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  const percentage = Math.round((result.score / result.totalQuestions) * 100);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8 p-4">
       <div>
         <h1 className="text-3xl font-bold">Exam Result</h1>
         <p className="text-muted-foreground">Here is a summary of your performance.</p>
@@ -50,7 +78,7 @@ export default function ResultPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-4xl font-bold">{percentage}%</p>
-          <p className="text-lg text-muted-foreground">You scored <span className="font-bold text-primary">{mockResult.score}</span> out of <span className="font-bold">{mockResult.totalQuestions}</span> questions correctly.</p>
+          <p className="text-lg text-muted-foreground">You scored <span className="font-bold text-primary">{result.score}</span> out of <span className="font-bold">{result.totalQuestions}</span> questions correctly.</p>
            <Badge variant={percentage >= 50 ? "default" : "destructive"} className={`${percentage >= 50 ? 'bg-green-500' : ''} text-lg py-1 px-4`}>
             {percentage >= 50 ? "Passed" : "Failed"}
           </Badge>
@@ -63,7 +91,7 @@ export default function ResultPage() {
           <CardDescription>Review your answers below.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {mockResult.questions.map((q, index) => {
+          {result.questions.map((q, index) => {
             const isCorrect = q.userAnswer === q.correctAnswer;
             return (
               <div key={index}>
@@ -75,27 +103,13 @@ export default function ResultPage() {
                   )}
                   <div>
                     <p className="font-semibold">{index + 1}. {q.text}</p>
-                    <div className="mt-2 space-y-2 text-sm">
-                      {q.options.map((option, i) => {
-                        const isUserAnswer = option === q.userAnswer;
-                        const isCorrectAnswer = option === q.correctAnswer;
-
-                        let stateClass = "";
-                        if (isUserAnswer && !isCorrect) stateClass = "bg-destructive/10 border-destructive text-destructive";
-                        if (isCorrectAnswer) stateClass = "bg-green-500/10 border-green-500 text-green-600";
-                        
-                        return (
-                          <div key={i} className={`p-2 border rounded-md ${stateClass}`}>
-                            {option}
-                            {isUserAnswer && !isCorrect && <span className="ml-2 font-semibold">(Your Answer)</span>}
-                            {isCorrectAnswer && <span className="ml-2 font-semibold">(Correct Answer)</span>}
-                          </div>
-                        );
-                      })}
+                    <div className="mt-2 space-y-1 text-sm">
+                      <p><strong>Your Answer:</strong> {q.userAnswer ?? <span className="italic text-muted-foreground">Not answered</span>}</p>
+                      {!isCorrect && <p><strong>Correct Answer:</strong> {q.correctAnswer}</p>}
                     </div>
                   </div>
                 </div>
-                {index < mockResult.questions.length - 1 && <Separator className="mt-6" />}
+                {index < result.questions.length - 1 && <Separator className="mt-6" />}
               </div>
             );
           })}
