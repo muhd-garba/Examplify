@@ -8,12 +8,13 @@ import { getFunctions } from "firebase/functions";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "your-api-key",
-  authDomain: "your-auth-domain",
-  projectId: "your-project-id",
-  storageBucket: "your-storage-bucket",
-  messagingSenderId: "your-messaging-sender-id",
-  appId: "your-app-id"
+  "projectId": "examplify-q92jl",
+  "appId": "1:677520118980:web:29f6232863cdc21c76e591",
+  "storageBucket": "examplify-q92jl.firebasestorage.app",
+  "apiKey": "AIzaSyDU8BuEcHFgBxgErEYFL1G7b0qtUVFlBKM",
+  "authDomain": "examplify-q92jl.firebaseapp.com",
+  "measurementId": "",
+  "messagingSenderId": "677520118980"
 };
 
 // Initialize Firebase

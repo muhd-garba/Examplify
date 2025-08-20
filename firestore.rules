@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Admins can read and write all documents
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email.matches('admin@.*');
+    }
+
+    // Any authenticated user can create a user document for themselves
+    match /users/{userId} {
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
+    
+    // Candidates can read exams if they are invited
+    match /exams/{examId} {
+      allow read: if request.auth != null && exists(/databases/$(database)/documents/invitations/$(request.auth.uid + '_' + examId));
+    }
+
+    // Candidates can read invitations that are for them
+    match /invitations/{invitationId} {
+       allow read: if request.auth != null && resource.data.candidateEmail == request.auth.token.email;
+    }
+    
+    // Candidates can write their own results
+    match /results/{resultId} {
+      allow create: if request.auth != null && request.resource.data.candidateId == request.auth.uid;
+      allow read: if request.auth != null && resource.data.candidateId == request.auth.uid;
+    }
+  }
+}
