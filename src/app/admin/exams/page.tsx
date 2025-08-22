@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { MoreHorizontal, PlusCircle, Link2, Trash2, Edit } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Link2, Trash2, Edit, ArrowLeft } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,6 +42,7 @@ interface Test {
 export default function TestsPage() {
   const [tests, setTests] = useState<Test[]>([]);
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchTests = async () => {
@@ -83,9 +85,14 @@ export default function TestsPage() {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Tests</h1>
-          <p className="text-muted-foreground">Manage your tests and questions.</p>
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={() => router.back()}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">Tests</h1>
+            <p className="text-muted-foreground">Manage your tests and questions.</p>
+          </div>
         </div>
         <Link href="/admin/exams/create">
           <Button>
