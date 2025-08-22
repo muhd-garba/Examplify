@@ -31,28 +31,28 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 
-interface Exam {
+interface Test {
   id: string;
   title: string;
   questions: any[];
   duration: number;
 }
 
-export default function ExamsPage() {
-  const [exams, setExams] = useState<Exam[]>([]);
+export default function TestsPage() {
+  const [tests, setTests] = useState<Test[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchExams = async () => {
-      const querySnapshot = await getDocs(collection(db, "exams"));
-      const examsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Exam));
-      setExams(examsData);
+    const fetchTests = async () => {
+      const querySnapshot = await getDocs(collection(db, "tests"));
+      const testsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Test));
+      setTests(testsData);
     };
-    fetchExams();
+    fetchTests();
   }, []);
 
-  const copyInvitationLink = (examId: string) => {
-    const link = `${window.location.origin}/candidate/exams/${examId}`;
+  const copyInvitationLink = (testId: string) => {
+    const link = `${window.location.origin}/candidate/exams/${testId}`;
     navigator.clipboard.writeText(link);
     toast({
       title: "Link Copied",
@@ -60,19 +60,19 @@ export default function ExamsPage() {
     });
   };
 
-  const deleteExam = async (examId: string) => {
-    if (confirm("Are you sure you want to delete this exam?")) {
+  const deleteTest = async (testId: string) => {
+    if (confirm("Are you sure you want to delete this test?")) {
       try {
-        await deleteDoc(doc(db, "exams", examId));
-        setExams(exams.filter(exam => exam.id !== examId));
+        await deleteDoc(doc(db, "tests", testId));
+        setTests(tests.filter(test => test.id !== testId));
         toast({
-          title: "Exam Deleted",
-          description: "The exam has been successfully deleted.",
+          title: "Test Deleted",
+          description: "The test has been successfully deleted.",
         });
       } catch (error: any) {
         toast({
           variant: "destructive",
-          title: "Error deleting exam",
+          title: "Error deleting test",
           description: error.message,
         });
       }
@@ -84,20 +84,20 @@ export default function ExamsPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Exams</h1>
-          <p className="text-muted-foreground">Manage your exams and questions.</p>
+          <h1 className="text-3xl font-bold">Tests</h1>
+          <p className="text-muted-foreground">Manage your tests and questions.</p>
         </div>
         <Link href="/admin/exams/create">
           <Button>
-            <PlusCircle className="mr-2 h-4 w-4" /> Create Exam
+            <PlusCircle className="mr-2 h-4 w-4" /> Create Test
           </Button>
         </Link>
       </div>
 
       <Card>
         <CardHeader>
-            <CardTitle>Exam List</CardTitle>
-            <CardDescription>A list of all exams in the system.</CardDescription>
+            <CardTitle>Test List</CardTitle>
+            <CardDescription>A list of all tests in the system.</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -112,11 +112,11 @@ export default function ExamsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {exams.map((exam) => (
-                <TableRow key={exam.id}>
-                  <TableCell className="font-medium">{exam.title}</TableCell>
-                  <TableCell>{exam.questions.length}</TableCell>
-                  <TableCell>{exam.duration}</TableCell>
+              {tests.map((test) => (
+                <TableRow key={test.id}>
+                  <TableCell className="font-medium">{test.title}</TableCell>
+                  <TableCell>{test.questions.length}</TableCell>
+                  <TableCell>{test.duration}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -127,7 +127,7 @@ export default function ExamsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => copyInvitationLink(exam.id)}>
+                        <DropdownMenuItem onClick={() => copyInvitationLink(test.id)}>
                           <Link2 className="mr-2 h-4 w-4" />
                           Copy Invite Link
                         </DropdownMenuItem>
@@ -136,7 +136,7 @@ export default function ExamsPage() {
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => deleteExam(exam.id)} className="text-destructive">
+                        <DropdownMenuItem onClick={() => deleteTest(test.id)} className="text-destructive">
                            <Trash2 className="mr-2 h-4 w-4" />
                            Delete
                         </DropdownMenuItem>

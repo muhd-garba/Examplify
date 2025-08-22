@@ -26,7 +26,7 @@ import { format } from 'date-fns';
 interface Result {
   id: string;
   candidateEmail: string;
-  examTitle: string;
+  testTitle: string;
   score: number;
   totalQuestions: number;
   status: string;
@@ -82,7 +82,7 @@ export default function ResultsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Results</h1>
-          <p className="text-muted-foreground">View and export exam results.</p>
+          <p className="text-muted-foreground">View and export test results.</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline">
@@ -96,8 +96,8 @@ export default function ResultsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>All Exam Results</CardTitle>
-          <CardDescription>A comprehensive list of all exam submissions.</CardDescription>
+          <CardTitle>All Test Results</CardTitle>
+          <CardDescription>A comprehensive list of all test submissions.</CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -109,7 +109,7 @@ export default function ResultsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Candidate</TableHead>
-                <TableHead>Exam</TableHead>
+                <TableHead>Test</TableHead>
                 <TableHead>Score (%)</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Date Submitted</TableHead>
@@ -119,7 +119,7 @@ export default function ResultsPage() {
               {results.map((result) => (
                 <TableRow key={result.id}>
                   <TableCell className="font-medium">{result.candidateEmail}</TableCell>
-                  <TableCell>{result.examTitle}</TableCell>
+                  <TableCell>{result.testTitle}</TableCell>
                   <TableCell>{calculatePercentage(result.score, result.totalQuestions)}%</TableCell>
                   <TableCell>
                      <Badge variant={result.status === "Passed" ? "default" : "destructive"} className={`${result.status === "Passed" ? 'bg-green-500' : ''}`}>

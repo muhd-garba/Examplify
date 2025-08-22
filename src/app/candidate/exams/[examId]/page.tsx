@@ -23,20 +23,20 @@ interface Question {
   correctOptionIndex: number;
 }
 
-interface Exam {
+interface Test {
   id: string;
   title: string;
   duration: number;
   questions: Question[];
 }
 
-export default function ExamPage() {
+export default function TestPage() {
   const router = useRouter();
   const params = useParams();
-  const examId = params.examId as string;
+  const testId = params.examId as string;
   const [user] = useAuthState(auth);
 
-  const [exam, setExam] = useState<Exam | null>(null);
+  const [test, setTest] = useState<Test | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
@@ -44,32 +44,32 @@ export default function ExamPage() {
   const [timeUpDialogOpen, setTimeUpDialogOpen] = useState(false);
   
   useEffect(() => {
-    if (!examId) return;
-    const fetchExam = async () => {
+    if (!testId) return;
+    const fetchTest = async () => {
       try {
-        const examDoc = await getDoc(doc(db, "exams", examId));
-        if (examDoc.exists()) {
-          const examData = { id: examDoc.id, ...examDoc.data() } as Exam;
-          setExam(examData);
-          setTimeLeft(examData.duration * 60);
+        const testDoc = await getDoc(doc(db, "tests", testId));
+        if (testDoc.exists()) {
+          const testData = { id: testDoc.id, ...testDoc.data() } as Test;
+          setTest(testData);
+          setTimeLeft(testData.duration * 60);
         } else {
-          // Handle exam not found
-          console.error("Exam not found");
+          // Handle test not found
+          console.error("Test not found");
         }
       } catch (error) {
-        console.error("Error fetching exam:", error);
+        console.error("Error fetching test:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchExam();
-  }, [examId]);
+    fetchTest();
+  }, [testId]);
 
   useEffect(() => {
     if (timeLeft === null) return;
     if (timeLeft <= 0) {
       if(!timeUpDialogOpen) {
-        submitExam();
+        submitTest();
       }
       return;
     }
@@ -78,7 +78,7 @@ export default function ExamPage() {
   }, [timeLeft, timeUpDialogOpen]);
 
   const handleNext = () => {
-    if (exam && currentQuestionIndex < exam.questions.length - 1) {
+    if (test && currentQuestionIndex < test.questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     }
   };
@@ -93,13 +93,13 @@ export default function ExamPage() {
     setAnswers(prev => ({ ...prev, [currentQuestionIndex]: parseInt(value, 10) }));
   };
   
-  const submitExam = async () => {
-    if (!exam || !user) return;
+  const submitTest = async () => {
+    if (!test || !user) return;
 
     setTimeLeft(0);
 
     let score = 0;
-    const submittedAnswers = exam.questions.map((q, index) => {
+    const submittedAnswers = test.questions.map((q, index) => {
       const selectedOptionIndex = answers[index];
       const isCorrect = selectedOptionIndex === q.correctOptionIndex;
       if (isCorrect) {
@@ -115,19 +115,19 @@ export default function ExamPage() {
 
     try {
       const resultDocRef = await addDoc(collection(db, "results"), {
-        examId: exam.id,
-        examTitle: exam.title,
+        testId: test.id,
+        testTitle: test.title,
         candidateId: user.uid,
         candidateEmail: user.email,
         answers: submittedAnswers,
         score: score,
-        totalQuestions: exam.questions.length,
+        totalQuestions: test.questions.length,
         submittedAt: new Date(),
       });
       
       localStorage.setItem(`result-${resultDocRef.id}`, JSON.stringify({
         score,
-        totalQuestions: exam.questions.length,
+        totalQuestions: test.questions.length,
         questions: submittedAnswers.map(ans => ({
             text: ans.questionText,
             userAnswer: ans.selectedOption,
@@ -135,14 +135,14 @@ export default function ExamPage() {
         }))
       }));
 
-      router.push(`/candidate/exams/${exam.id}/result?resultId=${resultDocRef.id}`);
+      router.push(`/candidate/exams/${test.id}/result?resultId=${resultDocRef.id}`);
 
     } catch (error) {
-      console.error("Error submitting exam results: ", error);
+      console.error("Error submitting test results: ", error);
     }
   };
   
-  if (loading || !exam) {
+  if (loading || !test) {
      return (
         <div className="flex justify-center items-center h-screen">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -150,8 +150,8 @@ export default function ExamPage() {
     )
   }
 
-  const currentQuestion = exam.questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / exam.questions.length) * 100;
+  const currentQuestion = test.questions[currentQuestionIndex];
+  const progress = ((currentQuestionIndex + 1) / test.questions.length) * 100;
   const minutes = Math.floor((timeLeft || 0) / 60);
   const seconds = (timeLeft || 0) % 60;
 
@@ -160,7 +160,7 @@ export default function ExamPage() {
       <Card className="w-full max-w-3xl">
         <CardHeader className="border-b">
           <div className="flex justify-between items-center">
-            <CardTitle>{exam.title}</CardTitle>
+            <CardTitle>{test.title}</CardTitle>
             <div className="flex items-center gap-2 font-medium text-primary">
               <Clock className="h-5 w-5" />
               <span>{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</span>
@@ -170,7 +170,7 @@ export default function ExamPage() {
         </CardHeader>
         <CardContent className="py-8">
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold">Question {currentQuestionIndex + 1} of {exam.questions.length}</h2>
+            <h2 className="text-xl font-semibold">Question {currentQuestionIndex + 1} of {test.questions.length}</h2>
             <p className="text-lg">{currentQuestion.text}</p>
             <RadioGroup
               value={String(answers[currentQuestionIndex])}
@@ -189,10 +189,10 @@ export default function ExamPage() {
         <CardFooter className="flex justify-between border-t pt-6">
           <Button variant="outline" onClick={handlePrev} disabled={currentQuestionIndex === 0}>Previous</Button>
           <div className="flex gap-2">
-            {currentQuestionIndex < exam.questions.length - 1 ? (
+            {currentQuestionIndex < test.questions.length - 1 ? (
               <Button onClick={handleNext}>Next</Button>
             ) : (
-              <Button onClick={submitExam}>Submit Exam</Button>
+              <Button onClick={submitTest}>Submit Test</Button>
             )}
           </div>
         </CardFooter>
@@ -203,7 +203,7 @@ export default function ExamPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Time's Up!</AlertDialogTitle>
             <AlertDialogDescription>
-              Your time for the exam has expired. Your answers are being submitted.
+              Your time for the test has expired. Your answers are being submitted.
             </AlertDialogDescription>
           </AlertDialogHeader>
         </AlertDialogContent>

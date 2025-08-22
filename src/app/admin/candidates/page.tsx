@@ -25,10 +25,10 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const candidates = [
-  { id: "1", name: "Alice Johnson", email: "alice@example.com", examsTaken: 5 },
-  { id: "2", name: "Bob Williams", email: "bob@example.com", examsTaken: 8 },
-  { id: "3", name: "Charlie Brown", email: "charlie@example.com", examsTaken: 2 },
-  { id: "4", name: "Diana Miller", email: "diana@example.com", examsTaken: 10 },
+  { id: "1", name: "Alice Johnson", email: "alice@example.com", testsTaken: 5 },
+  { id: "2", name: "Bob Williams", email: "bob@example.com", testsTaken: 8 },
+  { id: "3", name: "Charlie Brown", email: "charlie@example.com", testsTaken: 2 },
+  { id: "4", name: "Diana Miller", email: "diana@example.com", testsTaken: 10 },
 ];
 
 export default function CandidatesPage() {
@@ -50,7 +50,7 @@ export default function CandidatesPage() {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Exams Taken</TableHead>
+                <TableHead>Tests Taken</TableHead>
                 <TableHead>
                   <span className="sr-only">Actions</span>
                 </TableHead>
@@ -69,7 +69,7 @@ export default function CandidatesPage() {
                     </div>
                   </TableCell>
                   <TableCell>{candidate.email}</TableCell>
-                  <TableCell>{candidate.examsTaken}</TableCell>
+                  <TableCell>{candidate.testsTaken}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

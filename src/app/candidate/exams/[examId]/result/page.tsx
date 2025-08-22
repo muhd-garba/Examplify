@@ -64,7 +64,7 @@ export default function ResultPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8 p-4">
       <div>
-        <h1 className="text-3xl font-bold">Exam Result</h1>
+        <h1 className="text-3xl font-bold">Test Result</h1>
         <p className="text-muted-foreground">Here is a summary of your performance.</p>
       </div>
 
@@ -74,7 +74,7 @@ export default function ResultPage() {
             <Award className="h-12 w-12" />
           </div>
           <CardTitle className="mt-4 text-2xl">Congratulations!</CardTitle>
-          <CardDescription>You have completed the exam.</CardDescription>
+          <CardDescription>You have completed the test.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-4xl font-bold">{percentage}%</p>

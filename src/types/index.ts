@@ -19,7 +19,7 @@ export interface Question {
   correctOptionId: string;
 }
 
-export interface Exam {
+export interface Test {
   id: string;
   title: string;
   description: string;
@@ -34,7 +34,7 @@ export interface Answer {
 
 export interface Result {
   id: string;
-  examId: string;
+  testId: string;
   candidateId: string;
   answers: Answer[];
   score: number;

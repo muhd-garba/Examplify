@@ -17,16 +17,16 @@ import { BookCopy, Users, CheckCircle } from "lucide-react";
 
 export default function AdminDashboard() {
   const stats = [
-    { title: "Total Exams", value: "12", icon: BookCopy },
+    { title: "Total Tests", value: "12", icon: BookCopy },
     { title: "Total Candidates", value: "150", icon: Users },
     { title: "Completed Tests", value: "342", icon: CheckCircle },
   ];
 
   const recentResults = [
-    { name: "Alice Johnson", exam: "Physics 101", score: "85%", status: "Passed" },
-    { name: "Bob Williams", exam: "Calculus II", score: "92%", status: "Passed" },
-    { name: "Charlie Brown", exam: "Intro to Chemistry", score: "45%", status: "Failed" },
-    { name: "Diana Miller", exam: "World History", score: "76%", status: "Passed" },
+    { name: "Alice Johnson", test: "Physics 101", score: "85%", status: "Passed" },
+    { name: "Bob Williams", test: "Calculus II", score: "92%", status: "Passed" },
+    { name: "Charlie Brown", test: "Intro to Chemistry", score: "45%", status: "Failed" },
+    { name: "Diana Miller", test: "World History", score: "76%", status: "Passed" },
   ];
 
   return (
@@ -56,7 +56,7 @@ export default function AdminDashboard() {
             <TableHeader>
               <TableRow>
                 <TableHead>Candidate</TableHead>
-                <TableHead>Exam</TableHead>
+                <TableHead>Test</TableHead>
                 <TableHead>Score</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
@@ -65,7 +65,7 @@ export default function AdminDashboard() {
               {recentResults.map((result, index) => (
                 <TableRow key={index}>
                   <TableCell className="font-medium">{result.name}</TableCell>
-                  <TableCell>{result.exam}</TableCell>
+                  <TableCell>{result.test}</TableCell>
                   <TableCell>{result.score}</TableCell>
                   <TableCell>
                     <Badge variant={result.status === "Passed" ? "default" : "destructive"} className={`${result.status === "Passed" ? 'bg-green-500' : ''}`}>

@@ -34,7 +34,7 @@ const questionSchema = z.object({
   correctOptionIndex: z.string({ required_error: "Please select a correct answer." }),
 });
 
-const examSchema = z.object({
+const testSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
   description: z.string().optional(),
   duration: z.coerce.number().min(1, "Duration must be at least 1 minute."),
@@ -42,14 +42,14 @@ const examSchema = z.object({
   candidateEmails: z.string().min(1, "Please enter at least one candidate email."),
 });
 
-type ExamFormValues = z.infer<typeof examSchema>;
+type TestFormValues = z.infer<typeof testSchema>;
 
-export default function CreateExamPage() {
+export default function CreateTestPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const form = useForm<ExamFormValues>({
-    resolver: zodResolver(examSchema),
+  const form = useForm<TestFormValues>({
+    resolver: zodResolver(testSchema),
     defaultValues: {
       title: "",
       description: "",
@@ -64,10 +64,10 @@ export default function CreateExamPage() {
     name: "questions",
   });
   
-  async function onSubmit(data: ExamFormValues) {
+  async function onSubmit(data: TestFormValues) {
     try {
-      // 1. Create the exam document
-      const examData = {
+      // 1. Create the test document
+      const testData = {
         title: data.title,
         description: data.description,
         duration: data.duration,
@@ -77,7 +77,7 @@ export default function CreateExamPage() {
           correctOptionIndex: parseInt(q.correctOptionIndex, 10)
         }))
       };
-      const examDocRef = await addDoc(collection(db, "exams"), examData);
+      const testDocRef = await addDoc(collection(db, "tests"), testData);
 
       // 2. Create invitations in a batch
       const batch = writeBatch(db);
@@ -87,7 +87,7 @@ export default function CreateExamPage() {
         const invitationRef = doc(collection(db, "invitations"));
         batch.set(invitationRef, {
           candidateEmail: email,
-          examId: examDocRef.id,
+          testId: testDocRef.id,
           status: "invited"
         });
       });
@@ -95,14 +95,14 @@ export default function CreateExamPage() {
       await batch.commit();
 
       toast({
-        title: "Exam Created!",
-        description: `The exam "${data.title}" has been created and invitations sent.`,
+        title: "Test Created!",
+        description: `The test "${data.title}" has been created and invitations sent.`,
       });
       router.push("/admin/exams");
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Failed to create exam",
+        title: "Failed to create test",
         description: error.message,
       });
     }
@@ -111,15 +111,15 @@ export default function CreateExamPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Create Exam</h1>
-        <p className="text-muted-foreground">Fill in the details to create a new exam and invite candidates.</p>
+        <h1 className="text-3xl font-bold">Create Test</h1>
+        <p className="text-muted-foreground">Fill in the details to create a new test and invite candidates.</p>
       </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <Card>
             <CardHeader>
-              <CardTitle>Exam Details</CardTitle>
+              <CardTitle>Test Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField
@@ -127,7 +127,7 @@ export default function CreateExamPage() {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Exam Title</FormLabel>
+                    <FormLabel>Test Title</FormLabel>
                     <FormControl><Input placeholder="e.g., Physics 101 Midterm" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -139,7 +139,7 @@ export default function CreateExamPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Description</FormLabel>
-                    <FormControl><Textarea placeholder="Describe the exam..." {...field} /></FormControl>
+                    <FormControl><Textarea placeholder="Describe the test..." {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -186,7 +186,7 @@ export default function CreateExamPage() {
           <Card>
             <CardHeader>
               <CardTitle>Questions</CardTitle>
-              <CardDescription>Add questions and options for this exam.</CardDescription>
+              <CardDescription>Add questions and options for this test.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {fields.map((field, index) => (
@@ -234,7 +234,7 @@ export default function CreateExamPage() {
           </Card>
           
           <div className="flex justify-end">
-            <Button type="submit">Create Exam & Send Invites</Button>
+            <Button type="submit">Create Test & Send Invites</Button>
           </div>
         </form>
       </Form>

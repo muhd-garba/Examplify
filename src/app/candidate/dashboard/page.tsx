@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/card";
 import { Clock, HelpCircle, BookOpen, Loader2 } from "lucide-react";
 
-interface Exam {
+interface Test {
   id: string;
   title: string;
   description: string;
@@ -26,13 +26,13 @@ interface Exam {
 
 export default function CandidateDashboard() {
   const [user, loading] = useAuthState(auth);
-  const [availableExams, setAvailableExams] = useState<Exam[]>([]);
-  const [isLoadingExams, setIsLoadingExams] = useState(true);
+  const [availableTests, setAvailableTests] = useState<Test[]>([]);
+  const [isLoadingTests, setIsLoadingTests] = useState(true);
 
   useEffect(() => {
-    const fetchInvitedExams = async () => {
+    const fetchInvitedTests = async () => {
       if (!user) {
-        setIsLoadingExams(false);
+        setIsLoadingTests(false);
         return;
       };
 
@@ -46,42 +46,42 @@ export default function CandidateDashboard() {
         const invitationDocs = querySnapshot.docs;
 
         if (invitationDocs.length === 0) {
-          setAvailableExams([]);
-          setIsLoadingExams(false);
+          setAvailableTests([]);
+          setIsLoadingTests(false);
           return;
         }
 
-        // 2. Fetch the details for each invited exam
-        const examPromises = invitationDocs.map(invitation => {
-            const examId = invitation.data().examId;
-            const examDocRef = doc(db, "exams", examId);
-            return getDoc(examDocRef);
+        // 2. Fetch the details for each invited test
+        const testPromises = invitationDocs.map(invitation => {
+            const testId = invitation.data().testId;
+            const testDocRef = doc(db, "tests", testId);
+            return getDoc(testDocRef);
         });
 
-        const examDocs = await Promise.all(examPromises);
+        const testDocs = await Promise.all(testPromises);
 
-        const examsData = examDocs
-          .filter(examDoc => examDoc.exists())
-          .map(examDoc => ({
-            id: examDoc.id,
-            ...examDoc.data()
-          } as Exam));
+        const testsData = testDocs
+          .filter(testDoc => testDoc.exists())
+          .map(testDoc => ({
+            id: testDoc.id,
+            ...testDoc.data()
+          } as Test));
         
-        setAvailableExams(examsData);
+        setAvailableTests(testsData);
       } catch (error) {
-        console.error("Error fetching exams: ", error);
+        console.error("Error fetching tests: ", error);
         // Handle error display to user
       } finally {
-        setIsLoadingExams(false);
+        setIsLoadingTests(false);
       }
     };
 
     if (user) {
-      fetchInvitedExams();
+      fetchInvitedTests();
     }
   }, [user]);
 
-  if (loading || isLoadingExams) {
+  if (loading || isLoadingTests) {
     return (
         <div className="flex justify-center items-center h-64">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -93,18 +93,18 @@ export default function CandidateDashboard() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome! Here are your available exams.</p>
+        <p className="text-muted-foreground">Welcome! Here are your available tests.</p>
       </div>
 
-      {availableExams.length > 0 ? (
+      {availableTests.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {availableExams.map((exam) => (
-            <Card key={exam.id} className="flex flex-col">
+          {availableTests.map((test) => (
+            <Card key={test.id} className="flex flex-col">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
-                    <CardTitle>{exam.title}</CardTitle>
-                    <CardDescription>{exam.description}</CardDescription>
+                    <CardTitle>{test.title}</CardTitle>
+                    <CardDescription>{test.description}</CardDescription>
                   </div>
                   <BookOpen className="h-8 w-8 text-muted-foreground" />
                 </div>
@@ -112,16 +112,16 @@ export default function CandidateDashboard() {
               <CardContent className="flex-grow space-y-4">
                 <div className="flex items-center text-sm text-muted-foreground">
                   <HelpCircle className="mr-2 h-4 w-4" />
-                  <span>{exam.questions.length} questions</span>
+                  <span>{test.questions.length} questions</span>
                 </div>
                 <div className="flex items-center text-sm text-muted-foreground">
                   <Clock className="mr-2 h-4 w-4" />
-                  <span>{exam.duration} minutes</span>
+                  <span>{test.duration} minutes</span>
                 </div>
               </CardContent>
               <CardFooter>
-                <Link href={`/candidate/exams/${exam.id}`} className="w-full">
-                  <Button className="w-full">Start Exam</Button>
+                <Link href={`/candidate/exams/${test.id}`} className="w-full">
+                  <Button className="w-full">Start Test</Button>
                 </Link>
               </CardFooter>
             </Card>
@@ -131,8 +131,8 @@ export default function CandidateDashboard() {
         <Card>
             <CardContent className="p-6">
                 <div className="text-center text-muted-foreground">
-                    <p className="text-lg font-semibold">No Exams Available</p>
-                    <p>You have not been invited to any exams yet. Please check back later.</p>
+                    <p className="text-lg font-semibold">No Tests Available</p>
+                    <p>You have not been invited to any tests yet. Please check back later.</p>
                 </div>
             </CardContent>
         </Card>
