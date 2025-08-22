@@ -2,36 +2,10 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper function to check if a user is an admin
-    function isAdmin(userId) {
-      return exists(/databases/$(database)/documents/users/$(userId)) &&
-             get(/databases/$(database)/documents/users/$(userId)).data.role == 'admin';
-    }
-
-    // Users can read their own profile
-    match /users/{userId} {
-      allow read: if request.auth.uid == userId;
-      // Admins can create/update user roles
-      allow write: if isAdmin(request.auth.uid);
-    }
-    
-    // Admins can create, update, delete tests
-    match /tests/{testId} {
-      allow read: if request.auth != null; // Any authenticated user can read test details
-      allow create, update, delete: if request.auth != null;
-    }
-
-    // Admins can create invitations
-    match /invitations/{invitationId} {
-      allow read, create: if request.auth != null;
-    }
-
-    // Candidates can create their own results
-    match /results/{resultId} {
-      allow create: if request.auth.uid == request.resource.data.candidateId;
-      // Admins can read all results
-      allow read: if request.auth != null;
+    // Allow read/write access to all collections for any authenticated user.
+    // This is for development purposes and should be secured before production.
+    match /{document=**} {
+      allow read, write: if request.auth != null;
     }
   }
 }
