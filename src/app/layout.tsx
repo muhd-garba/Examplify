@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'Examplify',
+  title: 'CBTsytem',
   description: 'A modern Computer-Based Test (CBT) system.',
 };
 

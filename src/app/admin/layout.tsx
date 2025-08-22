@@ -110,7 +110,7 @@ export default function AdminLayout({
             </Avatar>
             <div className="flex flex-col group-data-[collapsible=icon]:hidden">
               <p className="text-sm font-medium">{auth.currentUser?.displayName || "Admin User"}</p>
-              <p className="text-xs text-muted-foreground">{auth.currentUser?.email || "admin@examplify.com"}</p>
+              <p className="text-xs text-muted-foreground">{auth.currentUser?.email || "admin@cbtsystem.com"}</p>
             </div>
           </div>
         </SidebarFooter>

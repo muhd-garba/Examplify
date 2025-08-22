@@ -5,7 +5,7 @@ export function Logo({ className }: { className?: string }) {
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <TestTube2 className="h-6 w-6 text-primary" />
-      <span className="text-xl font-bold text-foreground">Examplify</span>
+      <span className="text-xl font-bold text-foreground">CBTsytem</span>
     </div>
   );
 }

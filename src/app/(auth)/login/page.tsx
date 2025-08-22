@@ -48,7 +48,7 @@ export default function LoginPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Check for hardcoded credentials first
     if (
-        (values.email === "admin@examplify.com" || values.email === "candidate@examplify.com") &&
+        (values.email === "admin@cbtsystem.com" || values.email === "candidate@cbtsystem.com") &&
         values.password === "password"
     ) {
         if (values.email.startsWith("admin")) {
@@ -107,7 +107,7 @@ export default function LoginPage() {
     <Card>
       <CardHeader>
         <CardTitle>Welcome Back</CardTitle>
-        <CardDescription>Sign in to your Examplify account</CardDescription>
+        <CardDescription>Sign in to your CBTsytem account</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>

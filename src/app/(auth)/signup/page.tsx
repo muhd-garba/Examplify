@@ -97,7 +97,7 @@ export default function SignupPage() {
     <Card>
       <CardHeader>
         <CardTitle>Create an Account</CardTitle>
-        <CardDescription>Get started with Examplify today!</CardDescription>
+        <CardDescription>Get started with CBTsytem today!</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
