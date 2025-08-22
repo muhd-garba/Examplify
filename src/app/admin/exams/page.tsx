@@ -69,8 +69,7 @@ export default function TestsPage() {
 
         // 1. Delete the test document itself
         const testRef = doc(db, "tests", testId);
-        batch.delete(testRef);
-
+        
         // 2. Find and delete associated invitations
         const invitationsQuery = query(collection(db, "invitations"), where("testId", "==", testId));
         const invitationsSnapshot = await getDocs(invitationsQuery);
@@ -80,6 +79,9 @@ export default function TestsPage() {
         const resultsQuery = query(collection(db, "results"), where("testId", "==", testId));
         const resultsSnapshot = await getDocs(resultsQuery);
         resultsSnapshot.forEach(doc => batch.delete(doc.ref));
+
+        // Add the primary test deletion to the batch
+        batch.delete(testRef);
 
         // Commit the batch
         await batch.commit();
@@ -112,7 +114,7 @@ export default function TestsPage() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Tests</h1>
+            <h1 className="text-3xl font-bold">Manage Tests</h1>
             <p className="text-muted-foreground">Manage your tests and questions.</p>
           </div>
         </div>
