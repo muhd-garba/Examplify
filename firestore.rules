@@ -1,27 +1,10 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Allow any authenticated user to perform all actions on tests.
-    match /tests/{testId} {
-      allow read, write, create, update, delete: if request.auth != null;
-    }
-
-    // Allow any authenticated user to perform all actions on invitations.
-    match /invitations/{invitationId} {
-       allow read, write, create, update, delete: if request.auth != null;
-    }
-
-    // Allow any authenticated user to perform all actions on results.
-    match /results/{resultId} {
-      allow read, write, create, update, delete: if request.auth != null;
-    }
-    
-    // Users can only read their own user document
-    match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow write: if request.auth != null && request.auth.uid == userId;
+    match /{document=**} {
+      allow read, write: if true;
     }
   }
 }
