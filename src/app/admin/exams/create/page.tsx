@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from 'next/navigation';
-import { PlusCircle, Trash2 } from "lucide-react";
+import { PlusCircle, Trash2, ArrowLeft } from "lucide-react";
 import { collection, addDoc, writeBatch, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -54,7 +54,7 @@ export default function CreateTestPage() {
       title: "",
       description: "",
       duration: 60,
-      questions: [{ text: "", options: [{ text: "" }, { text: "" }], correctOptionIndex: "" }],
+      questions: [{ text: "", options: [{ text: "" }, { text: "" }], correctOptionIndex: "0" }],
       candidateEmails: "",
     },
   });
@@ -110,9 +110,14 @@ export default function CreateTestPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Create Test</h1>
-        <p className="text-muted-foreground">Fill in the details to create a new test and invite candidates.</p>
+      <div className="flex items-center gap-4">
+        <Button variant="outline" size="icon" onClick={() => router.back()}>
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div>
+          <h1 className="text-3xl font-bold">Create Test</h1>
+          <p className="text-muted-foreground">Fill in the details to create a new test and invite candidates.</p>
+        </div>
       </div>
 
       <Form {...form}>
@@ -216,7 +221,7 @@ export default function CreateTestPage() {
                         <FormLabel>Options (select the correct one)</FormLabel>
                           <RadioGroup
                             onValueChange={field.onChange}
-                            value={field.value}
+                            defaultValue={field.value}
                             className="flex flex-col space-y-2"
                           >
                             <QuestionOptions form={form} questionIndex={index} />
@@ -227,7 +232,7 @@ export default function CreateTestPage() {
                   />
                 </div>
               ))}
-              <Button type="button" variant="outline" onClick={() => append({ text: "", options: [{ text: "" }, { text: "" }], correctOptionIndex: "" })}>
+              <Button type="button" variant="outline" onClick={() => append({ text: "", options: [{ text: "" }, { text: "" }], correctOptionIndex: "0" })}>
                 <PlusCircle className="mr-2 h-4 w-4" /> Add Question
               </Button>
             </CardContent>

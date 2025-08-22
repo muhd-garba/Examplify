@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, ArrowLeft } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useRouter } from "next/navigation";
 
 const candidates = [
   { id: "1", name: "Alice Johnson", email: "alice@example.com", testsTaken: 5 },
@@ -32,11 +35,18 @@ const candidates = [
 ];
 
 export default function CandidatesPage() {
+  const router = useRouter();
+
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Candidates</h1>
-        <p className="text-muted-foreground">View and manage candidate accounts.</p>
+      <div className="flex items-center gap-4">
+        <Button variant="outline" size="icon" onClick={() => router.back()}>
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div>
+          <h1 className="text-3xl font-bold">Candidates</h1>
+          <p className="text-muted-foreground">View and manage candidate accounts.</p>
+        </div>
       </div>
 
       <Card>

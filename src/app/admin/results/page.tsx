@@ -19,9 +19,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Download, Filter, Loader2 } from "lucide-react";
+import { Download, Filter, Loader2, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
+import { useRouter } from "next/navigation";
 
 interface Result {
   id: string;
@@ -39,6 +40,7 @@ interface Result {
 export default function ResultsPage() {
   const [results, setResults] = useState<Result[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -80,9 +82,14 @@ export default function ResultsPage() {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Results</h1>
-          <p className="text-muted-foreground">View and export test results.</p>
+         <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={() => router.back()}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">Results</h1>
+            <p className="text-muted-foreground">View and export test results.</p>
+          </div>
         </div>
         <div className="flex gap-2">
           <Button variant="outline">
