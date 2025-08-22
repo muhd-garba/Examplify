@@ -3,12 +3,12 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  BookCopy,
-  LayoutDashboard,
-  LogOut,
-  Settings,
+  FilePlus2,
+  ListOrdered,
   Users,
   BarChart3,
+  Settings,
+  LogOut,
 } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
@@ -31,10 +31,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
-  { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/admin/exams', icon: BookCopy, label: 'Exams' },
-  { href: '/admin/candidates', icon: Users, label: 'Candidates' },
-  { href: '/admin/results', icon: BarChart3, label: 'Results' },
+  { href: '/admin/exams/create', icon: FilePlus2, label: 'Create Test' },
+  { href: '/admin/exams', icon: ListOrdered, label: 'Manage Tests' },
+  { href: '/admin/candidates', icon: Users, label: 'Candidate Management' },
+  { href: '/admin/results', icon: BarChart3, label: 'Reports' },
 ];
 
 export default function AdminLayout({
