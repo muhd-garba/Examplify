@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, deleteDoc, doc, writeBatch, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import {
@@ -63,13 +63,31 @@ export default function TestsPage() {
   };
 
   const deleteTest = async (testId: string) => {
-    if (confirm("Are you sure you want to delete this test?")) {
+    if (confirm("Are you sure you want to delete this test? This will also delete all associated invitations and results.")) {
       try {
-        await deleteDoc(doc(db, "tests", testId));
+        const batch = writeBatch(db);
+
+        // 1. Delete the test document itself
+        const testRef = doc(db, "tests", testId);
+        batch.delete(testRef);
+
+        // 2. Find and delete associated invitations
+        const invitationsQuery = query(collection(db, "invitations"), where("testId", "==", testId));
+        const invitationsSnapshot = await getDocs(invitationsQuery);
+        invitationsSnapshot.forEach(doc => batch.delete(doc.ref));
+        
+        // 3. Find and delete associated results
+        const resultsQuery = query(collection(db, "results"), where("testId", "==", testId));
+        const resultsSnapshot = await getDocs(resultsQuery);
+        resultsSnapshot.forEach(doc => batch.delete(doc.ref));
+
+        // Commit the batch
+        await batch.commit();
+
         setTests(tests.filter(test => test.id !== testId));
         toast({
           title: "Test Deleted",
-          description: "The test has been successfully deleted.",
+          description: "The test and all its data have been successfully deleted.",
         });
       } catch (error: any) {
         toast({
@@ -79,6 +97,10 @@ export default function TestsPage() {
         });
       }
     }
+  };
+
+  const navigateToEdit = (testId: string) => {
+    router.push(`/admin/exams/${testId}/edit`);
   };
 
 
@@ -138,7 +160,7 @@ export default function TestsPage() {
                           <Link2 className="mr-2 h-4 w-4" />
                           Copy Invite Link
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigateToEdit(test.id)}>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit
                         </DropdownMenuItem>
