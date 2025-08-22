@@ -63,41 +63,43 @@ export default function TestsPage() {
   };
 
   const deleteTest = async (testId: string) => {
-    if (confirm("Are you sure you want to delete this test? This will also delete all associated invitations and results.")) {
-      try {
-        const batch = writeBatch(db);
-
-        // 1. Delete the test document itself
-        const testRef = doc(db, "tests", testId);
-        
-        // 2. Find and delete associated invitations
-        const invitationsQuery = query(collection(db, "invitations"), where("testId", "==", testId));
-        const invitationsSnapshot = await getDocs(invitationsQuery);
-        invitationsSnapshot.forEach(doc => batch.delete(doc.ref));
-        
-        // 3. Find and delete associated results
-        const resultsQuery = query(collection(db, "results"), where("testId", "==", testId));
-        const resultsSnapshot = await getDocs(resultsQuery);
-        resultsSnapshot.forEach(doc => batch.delete(doc.ref));
-
-        // Add the primary test deletion to the batch
-        batch.delete(testRef);
-
-        // Commit the batch
-        await batch.commit();
-
-        setTests(tests.filter(test => test.id !== testId));
-        toast({
-          title: "Test Deleted",
-          description: "The test and all its data have been successfully deleted.",
-        });
-      } catch (error: any) {
-        toast({
-          variant: "destructive",
-          title: "Error deleting test",
-          description: error.message,
-        });
-      }
+    if (!confirm("Are you sure you want to delete this test? This will also delete all associated invitations and results.")) {
+      return;
+    }
+  
+    try {
+      // 1. Get references to all documents that need to be deleted
+      const testRef = doc(db, "tests", testId);
+  
+      const invitationsQuery = query(collection(db, "invitations"), where("testId", "==", testId));
+      const invitationsSnapshot = await getDocs(invitationsQuery);
+  
+      const resultsQuery = query(collection(db, "results"), where("testId", "==", testId));
+      const resultsSnapshot = await getDocs(resultsQuery);
+  
+      // 2. Create a batch and add all delete operations
+      const batch = writeBatch(db);
+  
+      batch.delete(testRef);
+      invitationsSnapshot.forEach(doc => batch.delete(doc.ref));
+      resultsSnapshot.forEach(doc => batch.delete(doc.ref));
+  
+      // 3. Commit the batch
+      await batch.commit();
+  
+      // 4. Update the UI
+      setTests(tests.filter(test => test.id !== testId));
+      toast({
+        title: "Test Deleted",
+        description: "The test and all its data have been successfully deleted.",
+      });
+  
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error deleting test",
+        description: error.message,
+      });
     }
   };
 
