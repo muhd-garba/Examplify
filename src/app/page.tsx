@@ -21,7 +21,7 @@ export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 max-w-screen-2xl items-center justify-between">
+        <div className="container mx-auto flex h-14 max-w-screen-2xl items-center justify-between px-4">
           <Logo />
           <nav className="hidden md:flex items-center gap-6 text-sm">
             <Link href="#features" className="text-muted-foreground transition-colors hover:text-foreground">Features</Link>
@@ -46,7 +46,7 @@ export default function LandingPage() {
                 <div className="blur-[106px] h-56 bg-gradient-to-br from-primary to-purple-400 dark:from-blue-700"></div>
                 <div className="blur-[106px] h-32 bg-gradient-to-r from-cyan-400 to-sky-300 dark:to-indigo-600"></div>
             </div>
-            <div className="container relative text-center animate-fade-in-up">
+            <div className="container relative text-center animate-fade-in-up px-4 mx-auto">
                 <h1 className="text-4xl md:text-6xl font-bold tracking-tighter text-foreground">
                     The Future of Online Examinations
                 </h1>
@@ -73,6 +73,7 @@ export default function LandingPage() {
                         width={1024}
                         height={576}
                         className="rounded-lg shadow-2xl mx-auto"
+                        data-ai-hint="dashboard screen"
                     />
                 </div>
             </div>
@@ -80,7 +81,7 @@ export default function LandingPage() {
 
         {/* Features Section */}
         <section id="features" className="py-20 bg-muted/40">
-            <div className="container">
+            <div className="container mx-auto px-4">
                 <div className="text-center mb-12">
                     <h2 className="text-3xl md:text-4xl font-bold">Why Choose CBTsytem?</h2>
                     <p className="mt-2 text-muted-foreground max-w-xl mx-auto">Discover the powerful features that make our platform the best choice for online testing.</p>
@@ -122,7 +123,7 @@ export default function LandingPage() {
 
         {/* How it Works Section */}
         <section id="how-it-works" className="py-20">
-            <div className="container">
+            <div className="container mx-auto px-4">
                 <div className="text-center mb-12">
                     <h2 className="text-3xl md:text-4xl font-bold">Simple Steps to Get Started</h2>
                     <p className="mt-2 text-muted-foreground">A streamlined process for both administrators and candidates.</p>
@@ -165,6 +166,7 @@ export default function LandingPage() {
                             width={600}
                             height={400}
                             className="rounded-lg shadow-xl"
+                            data-ai-hint="dashboard interface"
                         />
                     </div>
                 </div>
@@ -173,7 +175,7 @@ export default function LandingPage() {
 
         {/* Testimonials Section */}
         <section id="testimonials" className="py-20 bg-muted/40">
-            <div className="container">
+            <div className="container mx-auto px-4">
                 <div className="text-center mb-12">
                     <h2 className="text-3xl md:text-4xl font-bold">Loved by Educators and Institutions</h2>
                     <p className="mt-2 text-muted-foreground">Don't just take our word for it. Here's what people are saying.</p>
@@ -182,7 +184,7 @@ export default function LandingPage() {
                     opts={{
                         align: "start",
                     }}
-                    className="w-full"
+                    className="w-full max-w-4xl mx-auto"
                 >
                 <CarouselContent>
                     <CarouselItem className="md:basis-1/2 lg:basis-1/3">
@@ -190,10 +192,10 @@ export default function LandingPage() {
                         <Card>
                             <CardContent className="flex aspect-square items-center justify-center p-6 flex-col">
                                 <Avatar className="w-16 h-16 mb-4">
-                                    <AvatarImage src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1780&auto=format&fit=crop" />
+                                    <AvatarImage src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1780&auto=format&fit=crop" data-ai-hint="male person" />
                                     <AvatarFallback>U1</AvatarFallback>
                                 </Avatar>
-                                <p className="text-muted-foreground italic mb-4">"CBTsytem has revolutionized how we conduct our entrance exams. It's secure, easy to use, and has saved us countless hours."</p>
+                                <p className="text-muted-foreground italic mb-4 text-center">"CBTsytem has revolutionized how we conduct our entrance exams. It's secure, easy to use, and has saved us countless hours."</p>
                                 <p className="font-bold">John Doe</p>
                                 <p className="text-sm text-muted-foreground">Principal, Tech University</p>
                             </CardContent>
@@ -205,10 +207,10 @@ export default function LandingPage() {
                         <Card>
                             <CardContent className="flex aspect-square items-center justify-center p-6 flex-col">
                                 <Avatar className="w-16 h-16 mb-4">
-                                    <AvatarImage src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop" />
+                                    <AvatarImage src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop" data-ai-hint="female person" />
                                     <AvatarFallback>U2</AvatarFallback>
                                 </Avatar>
-                                <p className="text-muted-foreground italic mb-4">"The best platform for online assessments. The advanced analytics helped us identify key areas of improvement for our students."</p>
+                                <p className="text-muted-foreground italic mb-4 text-center">"The best platform for online assessments. The advanced analytics helped us identify key areas of improvement for our students."</p>
                                 <p className="font-bold">Jane Smith</p>
                                 <p className="text-sm text-muted-foreground">Director, Future Coders Academy</p>
                             </CardContent>
@@ -220,10 +222,10 @@ export default function LandingPage() {
                         <Card>
                             <CardContent className="flex aspect-square items-center justify-center p-6 flex-col">
                                 <Avatar className="w-16 h-16 mb-4">
-                                    <AvatarImage src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop" />
+                                    <AvatarImage src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop" data-ai-hint="female person" />
                                     <AvatarFallback>U3</AvatarFallback>
                                 </Avatar>
-                                <p className="text-muted-foreground italic mb-4">"A seamless experience for both our administrators and the test-takers. The support team is also incredibly responsive."</p>
+                                <p className="text-muted-foreground italic mb-4 text-center">"A seamless experience for both our administrators and the test-takers. The support team is also incredibly responsive."</p>
                                 <p className="font-bold">Samuel Lee</p>
                                 <p className="text-sm text-muted-foreground">HR Manager, Innovate Inc.</p>
                             </CardContent>
@@ -239,7 +241,7 @@ export default function LandingPage() {
         
         {/* CTA Section */}
         <section className="py-20">
-            <div className="container text-center">
+            <div className="container mx-auto px-4 text-center">
                 <h2 className="text-3xl md:text-4xl font-bold">Ready to Elevate Your Testing Process?</h2>
                 <p className="mt-4 text-muted-foreground max-w-xl mx-auto">Join hundreds of institutions who trust CBTsytem for their online examinations. Sign up today and experience the difference.</p>
                 <div className="mt-8">
@@ -256,7 +258,7 @@ export default function LandingPage() {
       </main>
       
        <footer className="border-t">
-        <div className="container py-12">
+        <div className="container mx-auto py-12 px-4">
             <div className="grid md:grid-cols-3 gap-8">
                 <div>
                     <Logo />
@@ -293,5 +295,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-    
