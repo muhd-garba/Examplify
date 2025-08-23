@@ -68,12 +68,11 @@ export default function LandingPage() {
                 </div>
                  <div className="mt-12 relative">
                     <Image 
-                        src="https://placehold.co/1024x576.png" 
+                        src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop" 
                         alt="CBTsytem Dashboard"
                         width={1024}
                         height={576}
                         className="rounded-lg shadow-2xl mx-auto"
-                        data-ai-hint="dashboard laptop"
                     />
                 </div>
             </div>
@@ -161,8 +160,7 @@ export default function LandingPage() {
                     </div>
                     <div>
                         <Image 
-                            src="https://placehold.co/600x400.png" 
-                            data-ai-hint="dashboard screen" 
+                            src="https://images.unsplash.com/photo-1588196749107-4a171a0149b8?q=80&w=2074&auto=format&fit=crop" 
                             alt="Admin dashboard" 
                             width={600}
                             height={400}
@@ -187,14 +185,13 @@ export default function LandingPage() {
                     className="w-full"
                 >
                 <CarouselContent>
-                    {Array.from({ length: 3 }).map((_, index) => (
-                    <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                    <CarouselItem className="md:basis-1/2 lg:basis-1/3">
                         <div className="p-1">
                         <Card>
                             <CardContent className="flex aspect-square items-center justify-center p-6 flex-col">
                                 <Avatar className="w-16 h-16 mb-4">
-                                    <AvatarImage src={`https://placehold.co/100x100.png`} data-ai-hint="person portrait" />
-                                    <AvatarFallback>U{index+1}</AvatarFallback>
+                                    <AvatarImage src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1780&auto=format&fit=crop" />
+                                    <AvatarFallback>U1</AvatarFallback>
                                 </Avatar>
                                 <p className="text-muted-foreground italic mb-4">"CBTsytem has revolutionized how we conduct our entrance exams. It's secure, easy to use, and has saved us countless hours."</p>
                                 <p className="font-bold">John Doe</p>
@@ -203,7 +200,36 @@ export default function LandingPage() {
                         </Card>
                         </div>
                     </CarouselItem>
-                    ))}
+                     <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+                        <div className="p-1">
+                        <Card>
+                            <CardContent className="flex aspect-square items-center justify-center p-6 flex-col">
+                                <Avatar className="w-16 h-16 mb-4">
+                                    <AvatarImage src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop" />
+                                    <AvatarFallback>U2</AvatarFallback>
+                                </Avatar>
+                                <p className="text-muted-foreground italic mb-4">"The best platform for online assessments. The advanced analytics helped us identify key areas of improvement for our students."</p>
+                                <p className="font-bold">Jane Smith</p>
+                                <p className="text-sm text-muted-foreground">Director, Future Coders Academy</p>
+                            </CardContent>
+                        </Card>
+                        </div>
+                    </CarouselItem>
+                     <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+                        <div className="p-1">
+                        <Card>
+                            <CardContent className="flex aspect-square items-center justify-center p-6 flex-col">
+                                <Avatar className="w-16 h-16 mb-4">
+                                    <AvatarImage src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop" />
+                                    <AvatarFallback>U3</AvatarFallback>
+                                </Avatar>
+                                <p className="text-muted-foreground italic mb-4">"A seamless experience for both our administrators and the test-takers. The support team is also incredibly responsive."</p>
+                                <p className="font-bold">Samuel Lee</p>
+                                <p className="text-sm text-muted-foreground">HR Manager, Innovate Inc.</p>
+                            </CardContent>
+                        </Card>
+                        </div>
+                    </CarouselItem>
                 </CarouselContent>
                 <CarouselPrevious />
                 <CarouselNext />
