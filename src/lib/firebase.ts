@@ -9,14 +9,15 @@ import { getFunctions } from "firebase/functions";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  "projectId": "cbt-system-424614",
+  "appId": "1:677520118980:web:32e3a1f33959a85276e591",
+  "storageBucket": "cbt-system-424614.appspot.com",
+  "apiKey": "AIzaSyDU8BuEcHFgBxgErEYFL1G7b0qtUVFlBKM",
+  "authDomain": "cbt-system-424614.firebaseapp.com",
+  "measurementId": "G-5G3W9Q03C8",
+  "messagingSenderId": "677520118980"
 };
+
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
