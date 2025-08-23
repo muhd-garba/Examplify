@@ -55,15 +55,11 @@ export default function LoginPage() {
       } else {
         router.push('/candidate/dashboard');
       }
-      toast({
-        title: "Login Successful",
-        description: "Welcome back!",
-      });
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Login Failed",
-        description: error.message,
+        description: "Invalid credentials. Please check your email and password.",
       });
     }
   }
@@ -76,10 +72,6 @@ export default function LoginPage() {
       // You would typically handle user creation/login in your backend/Firestore here
       // For simplicity, we redirect all Google sign-ins to the candidate dashboard
       router.push('/candidate/dashboard');
-      toast({
-        title: "Google Sign-In Successful",
-        description: `Welcome, ${user.displayName}!`,
-      });
     } catch (error: any) {
       toast({
         variant: "destructive",

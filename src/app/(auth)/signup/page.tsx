@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -61,7 +62,7 @@ export default function SignupPage() {
       await createUserWithEmailAndPassword(auth, values.email, values.password);
       toast({
         title: "Account Created",
-        description: "You have successfully signed up.",
+        description: "You have successfully signed up. Please log in.",
       });
       router.push('/login');
     } catch (error: any) {
@@ -76,12 +77,11 @@ export default function SignupPage() {
   async function handleGoogleSignUp() {
     const provider = new GoogleAuthProvider();
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
+      await signInWithPopup(auth, provider);
       // You would typically handle user creation in your backend/Firestore here
       toast({
         title: "Account Created",
-        description: `Welcome, ${user.displayName}!`,
+        description: "You have successfully signed up. Please log in.",
       });
       router.push('/login');
     } catch (error: any) {

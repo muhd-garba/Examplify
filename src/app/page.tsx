@@ -10,11 +10,11 @@ export default function LandingPage() {
       <header className="p-4 flex justify-between items-center">
         <Logo />
         <div className="flex gap-2">
-          <Link href="/candidate/login">
-             <Button variant="ghost">Candidate Login</Button>
+          <Link href="/login">
+             <Button>Login</Button>
           </Link>
-          <Link href="/admin/login">
-            <Button variant="ghost">Admin Login</Button>
+          <Link href="/signup">
+            <Button variant="outline">Sign Up</Button>
           </Link>
         </div>
       </header>
@@ -27,17 +27,9 @@ export default function LandingPage() {
             A Smart and Secure Online Exam Platform.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
-            <Link href="/candidate/login">
+            <Link href="/signup">
               <Button size="lg" className="w-full sm:w-auto">
-                <User className="mr-2" />
-                <span>Candidate Login</span>
-                <ArrowRight className="ml-2" />
-              </Button>
-            </Link>
-             <Link href="/admin/login">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                <UserCog className="mr-2" />
-                <span>Admin Login</span>
+                <span>Get Started</span>
                 <ArrowRight className="ml-2" />
               </Button>
             </Link>
