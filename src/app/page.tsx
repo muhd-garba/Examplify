@@ -2,6 +2,7 @@
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import { ArrowRight, BookOpen, Users, BarChart, ShieldCheck, Zap, Server } from 'lucide-react';
@@ -64,6 +65,16 @@ export default function LandingPage() {
                             Admin Login
                         </Button>
                     </Link>
+                </div>
+                 <div className="mt-12 relative">
+                    <Image 
+                        src="https://placehold.co/1024x576.png" 
+                        alt="CBTsytem Dashboard"
+                        width={1024}
+                        height={576}
+                        className="rounded-lg shadow-2xl mx-auto"
+                        data-ai-hint="dashboard laptop"
+                    />
                 </div>
             </div>
         </section>
@@ -149,7 +160,14 @@ export default function LandingPage() {
                         </div>
                     </div>
                     <div>
-                        <img src="https://placehold.co/600x400.png" data-ai-hint="dashboard screen" alt="Admin dashboard" className="rounded-lg shadow-xl"/>
+                        <Image 
+                            src="https://placehold.co/600x400.png" 
+                            data-ai-hint="dashboard screen" 
+                            alt="Admin dashboard" 
+                            width={600}
+                            height={400}
+                            className="rounded-lg shadow-xl"
+                        />
                     </div>
                 </div>
             </div>
@@ -175,7 +193,7 @@ export default function LandingPage() {
                         <Card>
                             <CardContent className="flex aspect-square items-center justify-center p-6 flex-col">
                                 <Avatar className="w-16 h-16 mb-4">
-                                    <AvatarImage src={`https://placehold.co/100x100.png?text=User${index+1}`} data-ai-hint="person portrait" />
+                                    <AvatarImage src={`https://placehold.co/100x100.png`} data-ai-hint="person portrait" />
                                     <AvatarFallback>U{index+1}</AvatarFallback>
                                 </Avatar>
                                 <p className="text-muted-foreground italic mb-4">"CBTsytem has revolutionized how we conduct our entrance exams. It's secure, easy to use, and has saved us countless hours."</p>
@@ -249,3 +267,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    
