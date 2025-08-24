@@ -1,8 +1,8 @@
 
-import { initializeApp, getApp, getApps, FirebaseApp } from "firebase/app";
-import { getAuth, Auth } from "firebase/auth";
-import { getFirestore, Firestore } from "firebase/firestore";
-import { getFunctions, Functions } from "firebase/functions";
+import { initializeApp, getApp, getApps, type FirebaseApp } from "firebase/app";
+import { getAuth, type Auth } from "firebase/auth";
+import { getFirestore, type Firestore } from "firebase/firestore";
+import { getFunctions, type Functions } from "firebase/functions";
 
 const firebaseConfig = {
     "projectId": "examplify-q92jl",
@@ -14,19 +14,9 @@ const firebaseConfig = {
     "messagingSenderId": "677520118980"
 };
 
-let app: FirebaseApp;
-let auth: Auth;
-let db: Firestore;
-let functions: Functions;
-
-if (getApps().length === 0) {
-  app = initializeApp(firebaseConfig);
-} else {
-  app = getApp();
-}
-
-auth = getAuth(app);
-db = getFirestore(app);
-functions = getFunctions(app);
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const functions = getFunctions(app);
 
 export { app, auth, db, functions };
