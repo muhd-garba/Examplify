@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -11,6 +12,7 @@ import {
 import { signOut } from "firebase/auth";
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 import {
   Sidebar,
@@ -40,6 +42,8 @@ export default function CandidateLayout({
   const pathname = usePathname();
   const router = useRouter();
   const { toast } = useToast();
+  const [user] = useAuthState(auth);
+
 
   const handleLogout = async () => {
     try {
@@ -98,12 +102,12 @@ export default function CandidateLayout({
           </SidebarMenu>
           <div className="flex items-center gap-3 p-2 group-data-[collapsible=icon]:justify-center">
             <Avatar className="size-9">
-              <AvatarImage src={auth.currentUser?.photoURL || "https://placehold.co/40x40.png"} alt="Candidate" data-ai-hint="person student" />
+              <AvatarImage src={user?.photoURL || "https://placehold.co/40x40.png"} alt="Candidate" data-ai-hint="person student" />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
             <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-              <p className="text-sm font-medium">{auth.currentUser?.displayName || "Candidate User"}</p>
-              <p className="text-xs text-muted-foreground">{auth.currentUser?.email || "candidate@cbtsystem.com"}</p>
+              <p className="text-sm font-medium">{user?.displayName || "Candidate User"}</p>
+              <p className="text-xs text-muted-foreground">{user?.email || "candidate@cbtsystem.com"}</p>
             </div>
           </div>
         </SidebarFooter>

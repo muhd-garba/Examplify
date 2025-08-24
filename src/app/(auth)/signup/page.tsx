@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile, User } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, db } from '@/lib/firebase';
 
@@ -58,36 +58,49 @@ export default function SignupPage() {
     },
   });
 
-  // Helper function to create user document in Firestore
-  const createUserDocument = async (uid: string, name: string | null, email: string | null, role: "admin" | "candidate") => {
-    if (!uid || !email) return;
-    const userDocRef = doc(db, "users", uid);
-    await setDoc(userDocRef, {
-      uid,
-      name,
-      email,
-      role,
-    });
+  const createUserDocument = async (user: User, role: "admin" | "candidate", additionalData: { name?: string } = {}) => {
+    if (!user) return;
+    const userDocRef = doc(db, "users", user.uid);
+    const userDoc = await getDoc(userDocRef);
+
+    // Only create a new user document if one doesn't already exist for this UID
+    if (!userDoc.exists()) {
+        const { displayName, email, uid } = user;
+        const name = additionalData.name || displayName; // Use provided name or display name
+        
+        await setDoc(userDocRef, {
+            uid,
+            name,
+            email,
+            role,
+            createdAt: new Date()
+        });
+        
+        // Also update the auth profile if a name was provided
+        if (additionalData.name && !displayName) {
+            await updateProfile(user, { displayName: additionalData.name });
+        }
+    }
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
-
-      await updateProfile(user, { displayName: values.name });
-      await createUserDocument(user.uid, values.name, values.email, values.role);
+      
+      await createUserDocument(user, values.role, { name: values.name });
       
       toast({
-        title: "Account Created",
-        description: "You have successfully signed up. Please log in.",
+        title: "Account Created!",
+        description: "You have successfully signed up. Redirecting to login...",
       });
       router.push('/login');
     } catch (error: any) {
-       let errorMessage = "An unknown error occurred.";
+       let errorMessage = "An unknown error occurred. Please try again.";
        if (error.code === 'auth/email-already-in-use') {
            errorMessage = "This email is already in use. Please log in instead.";
        }
+       console.error("Signup error:", error);
        toast({
         variant: "destructive",
         title: "Sign-up Failed",
@@ -101,22 +114,17 @@ export default function SignupPage() {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-
-      const userDocRef = doc(db, "users", user.uid);
-      const userDoc = await getDoc(userDocRef);
-
-      // Only create a new user document if one doesn't already exist
-      if (!userDoc.exists()) {
-        // For Google sign up, default role is candidate.
-        await createUserDocument(user.uid, user.displayName, user.email, "candidate");
-      }
+      
+      // We will create a document for the user with 'candidate' role by default.
+      // The createUserDocument function prevents overwriting existing docs.
+      await createUserDocument(user, "candidate");
       
       toast({
-        title: "Account Created / Logged In",
-        description: "You have successfully signed in with Google.",
+        title: "Signed In with Google",
+        description: "You have successfully signed in. Redirecting to the right dashboard...",
       });
 
-      // Redirect to login which will handle role-based routing
+      // The login page will handle the role-based redirection.
       router.push('/login');
 
     } catch (error: any) {

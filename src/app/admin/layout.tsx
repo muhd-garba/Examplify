@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -13,6 +14,7 @@ import {
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 import {
   Sidebar,
@@ -28,13 +30,12 @@ import {
 } from '@/components/ui/sidebar';
 import { Logo } from '@/components/logo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 
 const navItems = [
-  { href: '/admin/exams/create', icon: FilePlus2, label: 'Create Test' },
+  { href: '/admin/dashboard', icon: BarChart3, label: 'Dashboard' },
   { href: '/admin/exams', icon: ListOrdered, label: 'Manage Tests' },
-  { href: '/admin/candidates', icon: Users, label: 'Candidate Management' },
-  { href: '/admin/results', icon: BarChart3, label: 'Reports' },
+  { href: '/admin/candidates', icon: Users, label: 'Candidates' },
+  { href: '/admin/results', icon: BarChart3, label: 'Results' },
 ];
 
 export default function AdminLayout({
@@ -45,6 +46,7 @@ export default function AdminLayout({
   const pathname = usePathname();
   const router = useRouter();
   const { toast } = useToast();
+  const [user] = useAuthState(auth);
 
   const handleLogout = async () => {
     try {
@@ -105,12 +107,12 @@ export default function AdminLayout({
           </SidebarMenu>
           <div className="flex items-center gap-3 p-2 group-data-[collapsible=icon]:justify-center">
             <Avatar className="size-9">
-              <AvatarImage src={auth.currentUser?.photoURL || "https://placehold.co/40x40.png"} alt="Admin" data-ai-hint="person" />
+              <AvatarImage src={user?.photoURL || "https://placehold.co/40x40.png"} alt="Admin" data-ai-hint="person" />
               <AvatarFallback>AD</AvatarFallback>
             </Avatar>
             <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-              <p className="text-sm font-medium">{auth.currentUser?.displayName || "Admin User"}</p>
-              <p className="text-xs text-muted-foreground">{auth.currentUser?.email || "admin@cbtsystem.com"}</p>
+              <p className="text-sm font-medium">{user?.displayName || "Admin User"}</p>
+              <p className="text-xs text-muted-foreground">{user?.email || "admin@cbtsystem.com"}</p>
             </div>
           </div>
         </SidebarFooter>

@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, User } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from '@/lib/firebase';
 
@@ -47,9 +47,9 @@ export default function LoginPage() {
     },
   });
   
-  const handleLoginSuccess = async (uid: string) => {
+  const handleLoginSuccess = async (user: User) => {
     try {
-        const userDocRef = doc(db, "users", uid);
+        const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
 
         if (userDoc.exists()) {
@@ -62,11 +62,11 @@ export default function LoginPage() {
         } else {
             // This case might happen with Google sign-in if the doc wasn't created,
             // or if a user was somehow deleted from Firestore but not Auth.
-            // Default to candidate dashboard, or show an error.
+            // We can attempt to create it here or just deny login.
             toast({
                 variant: "destructive",
                 title: "Login Failed",
-                description: "User profile not found. Please contact support.",
+                description: "User profile not found. Please sign up or contact support.",
             });
             await auth.signOut();
         }
@@ -75,7 +75,7 @@ export default function LoginPage() {
         toast({
             variant: "destructive",
             title: "Login Failed",
-            description: "Could not retrieve user profile. Please try again.",
+            description: "Could not retrieve your user profile. Please try again.",
         });
         await auth.signOut();
     }
@@ -84,11 +84,11 @@ export default function LoginPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
-      await handleLoginSuccess(userCredential.user.uid);
+      await handleLoginSuccess(userCredential.user);
     } catch (error: any) {
       console.error("Login error:", error.code, error.message);
-      let errorMessage = "An unknown error occurred.";
-      if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+      let errorMessage = "An unknown error occurred. Please try again.";
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
         errorMessage = "Invalid credentials. Please check your email and password.";
       }
       toast({
@@ -103,8 +103,8 @@ export default function LoginPage() {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      // After Google sign-in, we still need to check their role from Firestore
-      await handleLoginSuccess(result.user.uid);
+      // After Google sign-in, we check their role from Firestore to redirect correctly.
+      await handleLoginSuccess(result.user);
     } catch (error: any) {
        console.error("Google Sign-in error:", error.code, error.message);
       toast({
