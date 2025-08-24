@@ -7,7 +7,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { auth } from '@/lib/firebase';
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from '@/lib/firebase';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -45,21 +46,35 @@ export default function LoginPage() {
       password: "",
     },
   });
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
-      // Simple role check based on email
-      if (values.email.includes("admin")) {
+  
+  const handleLoginSuccess = async (uid: string) => {
+    const userDoc = await getDoc(doc(db, "users", uid));
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      if (userData.role === 'admin') {
         router.push('/admin/dashboard');
       } else {
         router.push('/candidate/dashboard');
       }
+    } else {
+      // Default redirect if user document not found (edge case)
+      router.push('/candidate/dashboard');
+    }
+  }
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+      await handleLoginSuccess(userCredential.user.uid);
     } catch (error: any) {
+      let errorMessage = "An unknown error occurred.";
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+        errorMessage = "Invalid credentials. Please check your email and password.";
+      }
       toast({
         variant: "destructive",
         title: "Login Failed",
-        description: "Invalid credentials. Please check your email and password.",
+        description: errorMessage,
       });
     }
   }
@@ -68,10 +83,7 @@ export default function LoginPage() {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      // You would typically handle user creation/login in your backend/Firestore here
-      // For simplicity, we redirect all Google sign-ins to the candidate dashboard
-      router.push('/candidate/dashboard');
+      await handleLoginSuccess(result.user.uid);
     } catch (error: any) {
       toast({
         variant: "destructive",

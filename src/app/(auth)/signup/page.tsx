@@ -6,8 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { auth } from '@/lib/firebase';
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { auth, db } from '@/lib/firebase';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -59,7 +60,20 @@ export default function SignupPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await createUserWithEmailAndPassword(auth, values.email, values.password);
+      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      const user = userCredential.user;
+
+      // Update the user's profile with their name
+      await updateProfile(user, { displayName: values.name });
+
+      // Create a user document in Firestore to store role and other info
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        name: values.name,
+        email: values.email,
+        role: values.role,
+      });
+      
       toast({
         title: "Account Created",
         description: "You have successfully signed up. Please log in.",
@@ -77,11 +91,20 @@ export default function SignupPage() {
   async function handleGoogleSignUp() {
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
-      // You would typically handle user creation in your backend/Firestore here
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Create a user document in Firestore to store role (default to candidate)
+       await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        name: user.displayName,
+        email: user.email,
+        role: "candidate", // Default role for Google sign-up
+      }, { merge: true }); // Merge in case the user doc already exists
+
       toast({
         title: "Account Created",
-        description: "You have successfully signed up. Please log in.",
+        description: "You have successfully signed up with Google.",
       });
       router.push('/login');
     } catch (error: any) {
