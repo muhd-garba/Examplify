@@ -51,7 +51,7 @@ export default function LandingPage() {
                     The Future of Online Examinations
                 </h1>
                 <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-                    CBTsytem provides a smart, secure, and seamless platform for creating, managing, and taking computer-based tests.
+                    Examplify provides a smart, secure, and seamless platform for creating, managing, and taking computer-based tests.
                 </p>
                 <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
                     <Link href="/signup">
@@ -69,7 +69,7 @@ export default function LandingPage() {
                  <div className="mt-12 relative">
                     <Image 
                         src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop" 
-                        alt="CBTsytem Dashboard"
+                        alt="Examplify Dashboard"
                         width={1024}
                         height={576}
                         className="rounded-lg shadow-2xl mx-auto"
@@ -83,7 +83,7 @@ export default function LandingPage() {
         <section id="features" className="py-20 bg-muted/40">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-12">
-                    <h2 className="text-3xl md:text-4xl font-bold">Why Choose CBTsytem?</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold">Why Choose Examplify?</h2>
                     <p className="mt-2 text-muted-foreground max-w-xl mx-auto">Discover the powerful features that make our platform the best choice for online testing.</p>
                 </div>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -195,7 +195,7 @@ export default function LandingPage() {
                                     <AvatarImage src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1780&auto=format&fit=crop" data-ai-hint="male person" />
                                     <AvatarFallback>U1</AvatarFallback>
                                 </Avatar>
-                                <p className="text-muted-foreground italic mb-4 text-center">"CBTsytem has revolutionized how we conduct our entrance exams. It's secure, easy to use, and has saved us countless hours."</p>
+                                <p className="text-muted-foreground italic mb-4 text-center">"Examplify has revolutionized how we conduct our entrance exams. It's secure, easy to use, and has saved us countless hours."</p>
                                 <p className="font-bold">John Doe</p>
                                 <p className="text-sm text-muted-foreground">Principal, Tech University</p>
                             </CardContent>
@@ -243,7 +243,7 @@ export default function LandingPage() {
         <section className="py-20">
             <div className="container mx-auto px-4 text-center">
                 <h2 className="text-3xl md:text-4xl font-bold">Ready to Elevate Your Testing Process?</h2>
-                <p className="mt-4 text-muted-foreground max-w-xl mx-auto">Join hundreds of institutions who trust CBTsytem for their online examinations. Sign up today and experience the difference.</p>
+                <p className="mt-4 text-muted-foreground max-w-xl mx-auto">Join hundreds of institutions who trust Examplify for their online examinations. Sign up today and experience the difference.</p>
                 <div className="mt-8">
                      <Link href="/signup">
                         <Button size="lg">
@@ -284,7 +284,7 @@ export default function LandingPage() {
                 </div>
             </div>
             <div className="mt-8 border-t pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
-                <p>© {new Date().getFullYear()} CBTsytem. All rights reserved.</p>
+                <p>© {new Date().getFullYear()} Examplify. All rights reserved.</p>
                 <div className="flex gap-4 mt-4 md:mt-0">
                     <Link href="#" className="hover:text-foreground">Terms of Service</Link>
                     <Link href="#" className="hover:text-foreground">Privacy Policy</Link>

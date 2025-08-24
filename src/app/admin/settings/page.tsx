@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -42,7 +43,7 @@ export default function SettingsPage() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" defaultValue="admin@cbtsystem.com" />
+            <Input id="email" type="email" defaultValue="admin@examplify.com" />
           </div>
           <Button>Save Changes</Button>
         </CardContent>

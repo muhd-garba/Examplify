@@ -115,7 +115,7 @@ export default function LoginPage() {
     <Card>
       <CardHeader>
         <CardTitle>Welcome Back</CardTitle>
-        <CardDescription>Sign in to your CBTsytem account</CardDescription>
+        <CardDescription>Sign in to your Examplify account</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>

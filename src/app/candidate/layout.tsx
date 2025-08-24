@@ -107,7 +107,7 @@ export default function CandidateLayout({
             </Avatar>
             <div className="flex flex-col group-data-[collapsible=icon]:hidden">
               <p className="text-sm font-medium">{user?.displayName || "Candidate User"}</p>
-              <p className="text-xs text-muted-foreground">{user?.email || "candidate@cbtsystem.com"}</p>
+              <p className="text-xs text-muted-foreground">{user?.email || "candidate@examplify.com"}</p>
             </div>
           </div>
         </SidebarFooter>

@@ -112,9 +112,6 @@ export default function SignupPage() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       
-      // For Google Sign-In, we will check if a document exists. 
-      // If not, we create one with a default 'candidate' role.
-      // If it exists, we don't overwrite the role.
       const userDocRef = doc(db, "users", user.uid);
       const userDoc = await getDoc(userDocRef);
 
@@ -147,7 +144,7 @@ export default function SignupPage() {
     <Card>
       <CardHeader>
         <CardTitle>Create an Account</CardTitle>
-        <CardDescription>Get started with CBTsytem today!</CardDescription>
+        <CardDescription>Get started with Examplify today!</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
