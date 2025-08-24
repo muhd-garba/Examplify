@@ -9,12 +9,12 @@ import { getFunctions } from "firebase/functions";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  "projectId": "cbt-system-424614",
-  "appId": "1:677520118980:web:32e3a1f33959a85276e591",
-  "storageBucket": "cbt-system-424614.appspot.com",
+  "projectId": "examplify-q92jl",
+  "appId": "1:677520118980:web:29f6232863cdc21c76e591",
+  "storageBucket": "examplify-q92jl.firebasestorage.app",
   "apiKey": "AIzaSyDU8BuEcHFgBxgErEYFL1G7b0qtUVFlBKM",
-  "authDomain": "cbt-system-424614.firebaseapp.com",
-  "measurementId": "G-5G3W9Q03C8",
+  "authDomain": "examplify-q92jl.firebaseapp.com",
+  "measurementId": "",
   "messagingSenderId": "677520118980"
 };
 
