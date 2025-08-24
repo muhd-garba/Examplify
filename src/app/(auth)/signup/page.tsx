@@ -58,29 +58,25 @@ export default function SignupPage() {
     },
   });
 
-  const createUserDocument = async (user: User, role: "admin" | "candidate", additionalData: { name?: string } = {}) => {
+  const createUserDocument = async (user: User, role: "admin" | "candidate", name?: string) => {
     if (!user) return;
     const userDocRef = doc(db, "users", user.uid);
     const userDoc = await getDoc(userDocRef);
 
-    // Only create a new user document if one doesn't already exist for this UID
     if (!userDoc.exists()) {
-        const { displayName, email, uid } = user;
-        const name = additionalData.name || displayName; // Use provided name or display name
-        
-        await setDoc(userDocRef, {
-            uid,
-            name,
-            email,
-            role,
-            createdAt: new Date()
-        });
-        
-        // Also update the auth profile if a name was provided
-        if (additionalData.name && !displayName) {
-            await updateProfile(user, { displayName: additionalData.name });
-        }
+      const displayName = name || user.displayName;
+      await setDoc(userDocRef, {
+        uid: user.uid,
+        name: displayName,
+        email: user.email,
+        role: role,
+        createdAt: new Date()
+      });
+      if (displayName && !user.displayName) {
+        await updateProfile(user, { displayName });
+      }
     }
+    return getDoc(userDocRef); // Return the document snapshot
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -88,7 +84,8 @@ export default function SignupPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
       
-      await createUserDocument(user, values.role, { name: values.name });
+      await updateProfile(user, { displayName: values.name });
+      await createUserDocument(user, values.role, values.name);
       
       toast({
         title: "Account Created!",
@@ -115,16 +112,25 @@ export default function SignupPage() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       
-      // We will create a document for the user with 'candidate' role by default.
-      // The createUserDocument function prevents overwriting existing docs.
-      await createUserDocument(user, "candidate");
-      
-      toast({
-        title: "Signed In with Google",
-        description: "You have successfully signed in. Redirecting to the right dashboard...",
-      });
+      // For Google Sign-In, we will check if a document exists. 
+      // If not, we create one with a default 'candidate' role.
+      // If it exists, we don't overwrite the role.
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
 
-      // The login page will handle the role-based redirection.
+      if (!userDoc.exists()) {
+         await createUserDocument(user, "candidate");
+          toast({
+            title: "Account Created with Google",
+            description: "Your candidate account is ready. Redirecting to login...",
+          });
+      } else {
+         toast({
+            title: "Signed In with Google",
+            description: "Welcome back! Redirecting...",
+          });
+      }
+      
       router.push('/login');
 
     } catch (error: any) {

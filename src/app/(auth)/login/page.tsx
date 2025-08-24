@@ -60,9 +60,6 @@ export default function LoginPage() {
                 router.push('/candidate/dashboard');
             }
         } else {
-            // This case might happen with Google sign-in if the doc wasn't created,
-            // or if a user was somehow deleted from Firestore but not Auth.
-            // We can attempt to create it here or just deny login.
             toast({
                 variant: "destructive",
                 title: "Login Failed",
@@ -103,7 +100,6 @@ export default function LoginPage() {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      // After Google sign-in, we check their role from Firestore to redirect correctly.
       await handleLoginSuccess(result.user);
     } catch (error: any) {
        console.error("Google Sign-in error:", error.code, error.message);
