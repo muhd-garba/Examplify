@@ -48,17 +48,36 @@ export default function LoginPage() {
   });
   
   const handleLoginSuccess = async (uid: string) => {
-    const userDoc = await getDoc(doc(db, "users", uid));
-    if (userDoc.exists()) {
-      const userData = userDoc.data();
-      if (userData.role === 'admin') {
-        router.push('/admin/dashboard');
-      } else {
-        router.push('/candidate/dashboard');
-      }
-    } else {
-      // Default redirect if user document not found (edge case)
-      router.push('/candidate/dashboard');
+    try {
+        const userDocRef = doc(db, "users", uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+            const userData = userDoc.data();
+            if (userData.role === 'admin') {
+                router.push('/admin/dashboard');
+            } else {
+                router.push('/candidate/dashboard');
+            }
+        } else {
+            // This case might happen with Google sign-in if the doc wasn't created,
+            // or if a user was somehow deleted from Firestore but not Auth.
+            // Default to candidate dashboard, or show an error.
+            toast({
+                variant: "destructive",
+                title: "Login Failed",
+                description: "User profile not found. Please contact support.",
+            });
+            await auth.signOut();
+        }
+    } catch(error) {
+        console.error("Error fetching user data:", error);
+        toast({
+            variant: "destructive",
+            title: "Login Failed",
+            description: "Could not retrieve user profile. Please try again.",
+        });
+        await auth.signOut();
     }
   }
 
@@ -67,6 +86,7 @@ export default function LoginPage() {
       const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
       await handleLoginSuccess(userCredential.user.uid);
     } catch (error: any) {
+      console.error("Login error:", error.code, error.message);
       let errorMessage = "An unknown error occurred.";
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
         errorMessage = "Invalid credentials. Please check your email and password.";
@@ -83,12 +103,14 @@ export default function LoginPage() {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
+      // After Google sign-in, we still need to check their role from Firestore
       await handleLoginSuccess(result.user.uid);
     } catch (error: any) {
+       console.error("Google Sign-in error:", error.code, error.message);
       toast({
         variant: "destructive",
         title: "Google Sign-In Failed",
-        description: error.message,
+        description: "Could not sign in with Google. Please try again.",
       });
     }
   }

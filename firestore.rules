@@ -3,8 +3,40 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Allow users to read their own user document
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null;
+    }
+
+    // Allow authenticated users to read tests
+    match /tests/{testId} {
+      allow read: if request.auth != null;
+    }
+
+    // Allow admins to create, update, and delete tests
+    match /tests/{testId} {
+        allow write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Allow admins to manage invitations
+    match /invitations/{invitationId} {
+      allow read, write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Allow candidates to read their own invitations
+    match /invitations/{invitationId} {
+        allow read: if request.auth != null && get(/databases/$(database)/documents/invitations/$(invitationId)).data.candidateEmail == request.auth.email;
+    }
+    
+    // Allow authenticated users to write to their own results
+    match /results/{resultId} {
+      allow create: if request.auth != null;
+      allow read: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' || request.auth.uid == resource.data.candidateId;
+    }
+
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
     }
   }
 }
