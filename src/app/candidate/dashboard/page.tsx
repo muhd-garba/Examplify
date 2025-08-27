@@ -4,8 +4,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,23 +24,20 @@ interface Test {
   duration: number;
 }
 
+// Mock user email for demonstration since auth is removed
+const MOCK_USER_EMAIL = "candidate@example.com";
+
 export default function CandidateDashboard() {
-  const [user, loading] = useAuthState(auth);
   const [availableTests, setAvailableTests] = useState<Test[]>([]);
   const [isLoadingTests, setIsLoadingTests] = useState(true);
 
   useEffect(() => {
     const fetchInvitedTests = async () => {
-      if (!user) {
-        setIsLoadingTests(false);
-        return;
-      };
-
       try {
-        // 1. Find invitations for the current candidate
+        // 1. Find invitations for the mock candidate email
         const invitationsQuery = query(
           collection(db, "invitations"),
-          where("candidateEmail", "==", user.email)
+          where("candidateEmail", "==", MOCK_USER_EMAIL)
         );
         const querySnapshot = await getDocs(invitationsQuery);
         const invitationDocs = querySnapshot.docs;
@@ -77,12 +73,10 @@ export default function CandidateDashboard() {
       }
     };
 
-    if (user) {
-      fetchInvitedTests();
-    }
-  }, [user]);
+    fetchInvitedTests();
+  }, []);
 
-  if (loading || isLoadingTests) {
+  if (isLoadingTests) {
     return (
         <div className="flex justify-center items-center h-64">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -133,7 +127,7 @@ export default function CandidateDashboard() {
             <CardContent className="p-6">
                 <div className="text-center text-muted-foreground">
                     <p className="text-lg font-semibold">No Tests Available</p>
-                    <p>You have not been invited to any tests yet. Please check back later.</p>
+                    <p>No tests have been assigned to {MOCK_USER_EMAIL}.</p>
                 </div>
             </CardContent>
         </Card>

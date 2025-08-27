@@ -9,10 +9,6 @@ import {
   LogOut,
   User,
 } from 'lucide-react';
-import { signOut } from "firebase/auth";
-import { auth } from '@/lib/firebase';
-import { useToast } from '@/hooks/use-toast';
-import { useAuthState } from 'react-firebase-hooks/auth';
 
 import {
   Sidebar,
@@ -41,27 +37,7 @@ export default function CandidateLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { toast } = useToast();
-  const [user] = useAuthState(auth);
-
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      toast({
-        title: "Logged Out",
-        description: "You have been successfully logged out.",
-      });
-      router.push('/login');
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Logout Failed",
-        description: error.message,
-      });
-    }
-  };
-
+  
   return (
     <SidebarProvider>
       <Sidebar>
@@ -94,20 +70,22 @@ export default function CandidateLayout({
                 </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-                <SidebarMenuButton onClick={handleLogout}>
-                  <LogOut />
-                  <span>Logout</span>
-                </SidebarMenuButton>
+                <Link href="/">
+                  <SidebarMenuButton>
+                    <LogOut />
+                    <span>Exit</span>
+                  </SidebarMenuButton>
+                </Link>
             </SidebarMenuItem>
           </SidebarMenu>
           <div className="flex items-center gap-3 p-2 group-data-[collapsible=icon]:justify-center">
             <Avatar className="size-9">
-              <AvatarImage src={user?.photoURL || "https://placehold.co/40x40.png"} alt="Candidate" data-ai-hint="person student" />
+              <AvatarImage src={"https://placehold.co/40x40.png"} alt="Candidate" data-ai-hint="person student" />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
             <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-              <p className="text-sm font-medium">{user?.displayName || "Candidate User"}</p>
-              <p className="text-xs text-muted-foreground">{user?.email || "candidate@examplify.com"}</p>
+              <p className="text-sm font-medium">Candidate User</p>
+              <p className="text-xs text-muted-foreground">candidate@examplify.com</p>
             </div>
           </div>
         </SidebarFooter>

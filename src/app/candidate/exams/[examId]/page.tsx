@@ -4,8 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { doc, getDoc, collection, addDoc } from "firebase/firestore";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { db, auth } from '@/lib/firebase';
+import { db } from '@/lib/firebase';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -31,11 +30,15 @@ interface Test {
   questions: Question[];
 }
 
+const MOCK_USER = {
+  uid: 'mock_user_id',
+  email: 'candidate@example.com'
+};
+
 export default function TestPage() {
   const router = useRouter();
   const params = useParams();
   const testId = params.examId as string;
-  const [user] = useAuthState(auth);
 
   const [test, setTest] = useState<Test | null>(null);
   const [loading, setLoading] = useState(true);
@@ -86,7 +89,7 @@ export default function TestPage() {
 
   const handlePrev = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
+      setCurrentQuestionIndex(prev => prev + 1);
     }
   };
 
@@ -95,7 +98,8 @@ export default function TestPage() {
   };
   
   const submitTest = async () => {
-    if (!test || !user) return;
+    if (!test) return;
+    const user = MOCK_USER; // Use mock user
 
     setTimeLeft(0);
 
