@@ -3,8 +3,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,56 +22,25 @@ interface Test {
   duration: number;
 }
 
-// Mock user email for demonstration since auth is removed
 const MOCK_USER_EMAIL = "candidate@example.com";
+
+const mockTests: Test[] = [
+  { id: "mock-test-1", title: "Physics 101", description: "Midterm exam for introductory physics.", questions: [{}, {}, {}], duration: 60 },
+  { id: "mock-test-2", title: "Calculus II", description: "Final exam covering integration and series.", questions: [{}, {}, {}, {}], duration: 90 },
+  { id: "mock-test-3", title: "World History", description: "Exam on the period from 1500-1800.", questions: [{}, {}], duration: 45 },
+];
+
 
 export default function CandidateDashboard() {
   const [availableTests, setAvailableTests] = useState<Test[]>([]);
   const [isLoadingTests, setIsLoadingTests] = useState(true);
 
   useEffect(() => {
-    const fetchInvitedTests = async () => {
-      try {
-        // 1. Find invitations for the mock candidate email
-        const invitationsQuery = query(
-          collection(db, "invitations"),
-          where("candidateEmail", "==", MOCK_USER_EMAIL)
-        );
-        const querySnapshot = await getDocs(invitationsQuery);
-        const invitationDocs = querySnapshot.docs;
-
-        if (invitationDocs.length === 0) {
-          setAvailableTests([]);
-          setIsLoadingTests(false);
-          return;
-        }
-
-        // 2. Fetch the details for each invited test
-        const testPromises = invitationDocs.map(invitation => {
-            const testId = invitation.data().testId;
-            const testDocRef = doc(db, "tests", testId);
-            return getDoc(testDocRef);
-        });
-
-        const testDocs = await Promise.all(testPromises);
-
-        const testsData = testDocs
-          .filter(testDoc => testDoc.exists())
-          .map(testDoc => ({
-            id: testDoc.id,
-            ...testDoc.data()
-          } as Test));
-        
-        setAvailableTests(testsData);
-      } catch (error) {
-        console.error("Error fetching tests: ", error);
-        // Handle error display to user
-      } finally {
-        setIsLoadingTests(false);
-      }
-    };
-
-    fetchInvitedTests();
+    // Simulate fetching data
+    setTimeout(() => {
+      setAvailableTests(mockTests);
+      setIsLoadingTests(false);
+    }, 500);
   }, []);
 
   if (isLoadingTests) {
@@ -135,3 +102,4 @@ export default function CandidateDashboard() {
     </div>
   );
 }
+

@@ -1,3 +1,6 @@
+
+"use client";
+
 import {
   Card,
   CardContent,
@@ -65,3 +68,4 @@ export default function CandidateResultsPage() {
     </div>
   );
 }
+
