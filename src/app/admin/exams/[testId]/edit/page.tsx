@@ -7,9 +7,6 @@ import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { useRouter, useParams } from 'next/navigation';
 import { PlusCircle, Trash2, ArrowLeft, Loader2 } from "lucide-react";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -45,6 +42,24 @@ const testSchema = z.object({
 
 type TestFormValues = z.infer<typeof testSchema>;
 
+const mockTestData = {
+    title: "Physics 101 Midterm",
+    description: "A sample description for the physics test.",
+    duration: 60,
+    questions: [
+        { 
+            text: "What is the formula for force?", 
+            options: [{text: "E=mc^2"}, {text: "F=ma"}, {text: "H2O"}], 
+            correctOptionIndex: "1" 
+        },
+        { 
+            text: "What is the speed of light?", 
+            options: [{text: "3x10^8 m/s"}, {text: "100 mph"}, {text: "2 Fast 2 Furious"}], 
+            correctOptionIndex: "0" 
+        }
+    ]
+};
+
 export default function EditTestPage() {
   const router = useRouter();
   const params = useParams();
@@ -63,44 +78,12 @@ export default function EditTestPage() {
   });
   
   useEffect(() => {
-    if (!testId) return;
-
-    const fetchTest = async () => {
-      try {
-        const testRef = doc(db, "tests", testId);
-        const testSnap = await getDoc(testRef);
-
-        if (testSnap.exists()) {
-          const testData = testSnap.data();
-          form.reset({
-            title: testData.title,
-            description: testData.description,
-            duration: testData.duration,
-            questions: testData.questions.map((q: any) => ({
-                ...q,
-                correctOptionIndex: String(q.correctOptionIndex)
-            }))
-          });
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Not Found",
-            description: "Test not found.",
-          });
-          router.push("/admin/exams");
-        }
-      } catch (error) {
-         toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Failed to load test data.",
-          });
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchTest();
+    setLoading(true);
+    // Simulate fetching data
+    setTimeout(() => {
+      form.reset(mockTestData);
+      setLoading(false);
+    }, 500);
   }, [testId, form, router, toast]);
 
   const { fields, append, remove } = useFieldArray({
@@ -110,15 +93,8 @@ export default function EditTestPage() {
   
   async function onSubmit(data: TestFormValues) {
     try {
-      const testRef = doc(db, "tests", testId);
-      await updateDoc(testRef, {
-        ...data,
-        questions: data.questions.map(q => ({
-          ...q,
-          correctOptionIndex: parseInt(q.correctOptionIndex, 10)
-        }))
-      });
-
+      // Mock submission
+      console.log("Updated test data:", data);
       toast({
         title: "Test Updated!",
         description: `The test "${data.title}" has been successfully updated.`,

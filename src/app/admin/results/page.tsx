@@ -2,8 +2,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -32,46 +30,25 @@ interface Result {
   score: number;
   totalQuestions: number;
   status: string;
-  submittedAt: {
-    seconds: number;
-    nanoseconds: number;
-  };
+  submittedAt: Date;
 }
 
+const mockResults: Result[] = [
+    { id: "1", candidateEmail: "alice@example.com", testTitle: "Physics 101 Midterm", score: 8, totalQuestions: 10, status: "Passed", submittedAt: new Date("2024-05-20T10:30:00Z") },
+    { id: "2", candidateEmail: "bob@example.com", testTitle: "Calculus II Final", score: 9, totalQuestions: 10, status: "Passed", submittedAt: new Date("2024-05-19T14:00:00Z") },
+    { id: "3", candidateEmail: "charlie@example.com", testTitle: "Intro to Chemistry", score: 4, totalQuestions: 10, status: "Failed", submittedAt: new Date("2024-05-19T11:00:00Z") },
+    { id: "4", candidateEmail: "diana@example.com", testTitle: "World History: 1500-1800", score: 7, totalQuestions: 10, status: "Passed", submittedAt: new Date("2024-05-18T16:45:00Z") },
+    { id: "5", candidateEmail: "alice@example.com", testTitle: "Calculus II Final", score: 6, totalQuestions: 10, status: "Passed", submittedAt: new Date("2024-05-18T09:20:00Z") },
+];
+
+
 export default function ResultsPage() {
-  const [results, setResults] = useState<Result[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [results, setResults] = useState<Result[]>(mockResults);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchResults = async () => {
-      try {
-        const q = query(collection(db, "results"), orderBy("submittedAt", "desc"));
-        const querySnapshot = await getDocs(q);
-        const resultsData = querySnapshot.docs.map(doc => {
-          const data = doc.data();
-          const score = data.score;
-          const totalQuestions = data.totalQuestions;
-          const percentage = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
-          return {
-            id: doc.id,
-            ...data,
-            status: percentage >= 50 ? "Passed" : "Failed",
-          } as Result;
-        });
-        setResults(resultsData);
-      } catch (error) {
-        console.error("Error fetching results: ", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchResults();
-  }, []);
-
-  const formatDate = (timestamp: { seconds: number, nanoseconds: number }) => {
-    if (!timestamp) return 'N/A';
-    const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
+  const formatDate = (date: Date) => {
+    if (!date) return 'N/A';
     return format(date, 'PPP p');
   };
   

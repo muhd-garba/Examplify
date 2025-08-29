@@ -4,8 +4,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { collection, getDocs, deleteDoc, doc, writeBatch, query, where } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -41,19 +39,18 @@ interface Test {
   duration: number;
 }
 
+const mockTests: Test[] = [
+    { id: "1", title: "Physics 101 Midterm", subject: "Physics", questions: [{}, {}, {}, {}, {}], duration: 60 },
+    { id: "2", title: "World History: 1500-1800", subject: "History", questions: [{}, {}, {}], duration: 45 },
+    { id: "3", title: "Calculus II Final", subject: "Mathematics", questions: [{}, {}, {}, {}, {}, {}, {}, {}], duration: 120 },
+    { id: "4", title: "Intro to Chemistry", subject: "Chemistry", questions: [{}, {}], duration: 30 },
+];
+
 export default function TestsPage() {
-  const [tests, setTests] = useState<Test[]>([]);
+  const [tests, setTests] = useState<Test[]>(mockTests);
   const { toast } = useToast();
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchTests = async () => {
-      const querySnapshot = await getDocs(collection(db, "tests"));
-      const testsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Test));
-      setTests(testsData);
-    };
-    fetchTests();
-  }, []);
 
   const copyInvitationLink = (testId: string) => {
     const link = `${window.location.origin}/candidate/exams/${testId}`;
@@ -65,31 +62,16 @@ export default function TestsPage() {
   };
 
   const deleteTest = async (testId: string) => {
-    if (!confirm("Are you sure you want to delete this test? This will also delete all associated invitations and results.")) {
+    if (!confirm("Are you sure you want to delete this test?")) {
       return;
     }
   
     try {
-      const testRef = doc(db, "tests", testId);
-  
-      const invitationsQuery = query(collection(db, "invitations"), where("testId", "==", testId));
-      const invitationsSnapshot = await getDocs(invitationsQuery);
-  
-      const resultsQuery = query(collection(db, "results"), where("testId", "==", testId));
-      const resultsSnapshot = await getDocs(resultsQuery);
-  
-      const batch = writeBatch(db);
-  
-      batch.delete(testRef);
-      invitationsSnapshot.forEach(doc => batch.delete(doc.ref));
-      resultsSnapshot.forEach(doc => batch.delete(doc.ref));
-  
-      await batch.commit();
-  
+      // This is a mock action, so we just filter the state
       setTests(tests.filter(test => test.id !== testId));
       toast({
         title: "Test Deleted",
-        description: "The test and all its data have been successfully deleted.",
+        description: "The test has been successfully deleted.",
       });
   
     } catch (error: any) {
@@ -106,7 +88,6 @@ export default function TestsPage() {
   };
 
   const navigateToResults = (testId: string) => {
-    // This could navigate to a filtered results page in the future
     router.push(`/admin/results`);
   };
 
