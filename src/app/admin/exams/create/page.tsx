@@ -2,7 +2,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from 'next/navigation';
 import { PlusCircle, Trash2, ArrowLeft } from "lucide-react";
@@ -37,6 +37,7 @@ const questionSchema = z.object({
 
 const testSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
+  subject: z.string().min(3, "Subject must be at least 3 characters."),
   description: z.string().optional(),
   duration: z.coerce.number().min(1, "Duration must be at least 1 minute."),
   questions: z.array(questionSchema).min(1, "At least one question is required."),
@@ -53,6 +54,7 @@ export default function CreateTestPage() {
     resolver: zodResolver(testSchema),
     defaultValues: {
       title: "",
+      subject: "",
       description: "",
       duration: 60,
       questions: [{ text: "", options: [{ text: "" }, { text: "" }], correctOptionIndex: "0" }],
@@ -70,6 +72,7 @@ export default function CreateTestPage() {
       // 1. Create the test document
       const testData = {
         title: data.title,
+        subject: data.subject,
         description: data.description,
         duration: data.duration,
         questions: data.questions.map(q => ({
@@ -96,7 +99,7 @@ export default function CreateTestPage() {
       await batch.commit();
 
       toast({
-        title: "Test Created!",
+        title: "Test Published!",
         description: `The test "${data.title}" has been created and invitations sent.`,
       });
       router.push("/admin/exams");
@@ -116,8 +119,8 @@ export default function CreateTestPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">Create Test</h1>
-          <p className="text-muted-foreground">Fill in the details to create a new test and invite candidates.</p>
+          <h1 className="text-3xl font-bold">Create a New Test</h1>
+          <p className="text-muted-foreground">Fill in the details to build a new test from scratch.</p>
         </div>
       </div>
 
@@ -126,6 +129,7 @@ export default function CreateTestPage() {
           <Card>
             <CardHeader>
               <CardTitle>Test Details</CardTitle>
+              <CardDescription>Enter test name, subject, description, and time limit.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField
@@ -135,6 +139,17 @@ export default function CreateTestPage() {
                   <FormItem>
                     <FormLabel>Test Title</FormLabel>
                     <FormControl><Input placeholder="e.g., Physics 101 Midterm" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="subject"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subject</FormLabel>
+                    <FormControl><Input placeholder="e.g., Physics" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -192,7 +207,7 @@ export default function CreateTestPage() {
           <Card>
             <CardHeader>
               <CardTitle>Questions</CardTitle>
-              <CardDescription>Add questions and options for this test.</CardDescription>
+              <CardDescription>Add questions and options for this test. Choose question types and generate them manually or with AI assistance.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {fields.map((field, index) => (
@@ -239,8 +254,9 @@ export default function CreateTestPage() {
             </CardContent>
           </Card>
           
-          <div className="flex justify-end">
-            <Button type="submit">Create Test & Send Invites</Button>
+          <div className="flex justify-end gap-4">
+            <Button type="submit" variant="outline">Save as Draft</Button>
+            <Button type="submit">Publish Test</Button>
           </div>
         </form>
       </Form>
@@ -255,10 +271,6 @@ function QuestionOptions({ form, questionIndex }: { form: any; questionIndex: nu
   });
 
   const { setValue } = form;
-  const watchedOptions = useWatch({
-      control: form.control,
-      name: `questions.${questionIndex}.options`
-  });
 
   const handleOptionRemove = (optionIndex: number) => {
     // Check if the removed option was the selected correct answer

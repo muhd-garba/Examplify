@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { MoreHorizontal, PlusCircle, Link2, Trash2, Edit, ArrowLeft } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Link2, Trash2, Edit, ArrowLeft, Eye } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,6 +36,7 @@ import { useToast } from "@/hooks/use-toast";
 interface Test {
   id: string;
   title: string;
+  subject: string;
   questions: any[];
   duration: number;
 }
@@ -69,7 +70,6 @@ export default function TestsPage() {
     }
   
     try {
-      // 1. Get references to all documents that need to be deleted
       const testRef = doc(db, "tests", testId);
   
       const invitationsQuery = query(collection(db, "invitations"), where("testId", "==", testId));
@@ -78,17 +78,14 @@ export default function TestsPage() {
       const resultsQuery = query(collection(db, "results"), where("testId", "==", testId));
       const resultsSnapshot = await getDocs(resultsQuery);
   
-      // 2. Create a batch and add all delete operations
       const batch = writeBatch(db);
   
       batch.delete(testRef);
       invitationsSnapshot.forEach(doc => batch.delete(doc.ref));
       resultsSnapshot.forEach(doc => batch.delete(doc.ref));
   
-      // 3. Commit the batch
       await batch.commit();
   
-      // 4. Update the UI
       setTests(tests.filter(test => test.id !== testId));
       toast({
         title: "Test Deleted",
@@ -108,6 +105,11 @@ export default function TestsPage() {
     router.push(`/admin/exams/${testId}/edit`);
   };
 
+  const navigateToResults = (testId: string) => {
+    // This could navigate to a filtered results page in the future
+    router.push(`/admin/results`);
+  };
+
 
   return (
     <div className="space-y-8">
@@ -118,12 +120,12 @@ export default function TestsPage() {
           </Button>
           <div>
             <h1 className="text-3xl font-bold">Manage Tests</h1>
-            <p className="text-muted-foreground">Manage your tests and questions.</p>
+            <p className="text-muted-foreground">View, edit, and control your existing tests.</p>
           </div>
         </div>
         <Link href="/admin/exams/create">
           <Button>
-            <PlusCircle className="mr-2 h-4 w-4" /> Create Test
+            <PlusCircle className="mr-2 h-4 w-4" /> Create New Test
           </Button>
         </Link>
       </div>
@@ -131,13 +133,14 @@ export default function TestsPage() {
       <Card>
         <CardHeader>
             <CardTitle>Test List</CardTitle>
-            <CardDescription>A list of all tests in the system.</CardDescription>
+            <CardDescription>A list of all tests in the system. You can edit, delete, or view results for each test.</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Title</TableHead>
+                <TableHead>Subject</TableHead>
                 <TableHead>Questions</TableHead>
                 <TableHead>Duration (mins)</TableHead>
                 <TableHead>
@@ -149,6 +152,7 @@ export default function TestsPage() {
               {tests.map((test) => (
                 <TableRow key={test.id}>
                   <TableCell className="font-medium">{test.title}</TableCell>
+                  <TableCell>{test.subject}</TableCell>
                   <TableCell>{test.questions.length}</TableCell>
                   <TableCell>{test.duration}</TableCell>
                   <TableCell>
@@ -161,13 +165,17 @@ export default function TestsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => copyInvitationLink(test.id)}>
-                          <Link2 className="mr-2 h-4 w-4" />
-                          Copy Invite Link
-                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => navigateToEdit(test.id)}>
                           <Edit className="mr-2 h-4 w-4" />
-                          Edit
+                          Edit Test
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigateToResults(test.id)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View Results
+                        </DropdownMenuItem>
+                         <DropdownMenuItem onClick={() => copyInvitationLink(test.id)}>
+                          <Link2 className="mr-2 h-4 w-4" />
+                          Copy Invite Link
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => deleteTest(test.id)} className="text-destructive">

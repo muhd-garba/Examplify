@@ -30,6 +30,7 @@ import { Button } from '@/components/ui/button';
 
 const navItems = [
   { href: '/admin/dashboard', icon: BarChart3, label: 'Dashboard' },
+  { href: '/admin/exams/create', icon: FilePlus2, label: 'Create Test' },
   { href: '/admin/exams', icon: ListOrdered, label: 'Manage Tests' },
   { href: '/admin/candidates', icon: Users, label: 'Candidates' },
   { href: '/admin/results', icon: BarChart3, label: 'Results' },
