@@ -3,14 +3,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { doc, getDoc, collection, addDoc } from "firebase/firestore";
-import { db } from '@/lib/firebase';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Clock, Loader2 } from 'lucide-react';
 
 interface Option {
@@ -35,6 +33,30 @@ const MOCK_USER = {
   email: 'candidate@example.com'
 };
 
+const MOCK_TEST: Test = {
+    id: "mock-test-1",
+    title: "Physics 101",
+    duration: 60,
+    questions: [
+        {
+            text: "What is the formula for force?",
+            options: [{text: "E=mc^2"}, {text: "F=ma"}, {text: "H2O"}],
+            correctOptionIndex: 1
+        },
+        {
+            text: "What is the SI unit for energy?",
+            options: [{text: "Watt"}, {text: "Joule"}, {text: "Newton"}],
+            correctOptionIndex: 1
+        },
+        {
+            text: "What is the acceleration due to gravity on Earth?",
+            options: [{text: "9.8 m/s^2"}, {text: "1.62 m/s^2"}, {text: "3.71 m/s^2"}],
+            correctOptionIndex: 0
+        }
+    ]
+};
+
+
 export default function TestPage() {
   const router = useRouter();
   const params = useParams();
@@ -48,25 +70,13 @@ export default function TestPage() {
   const [timeUpDialogOpen, setTimeUpDialogOpen] = useState(false);
   
   useEffect(() => {
-    if (!testId) return;
-    const fetchTest = async () => {
-      try {
-        const testDoc = await getDoc(doc(db, "tests", testId));
-        if (testDoc.exists()) {
-          const testData = { id: testDoc.id, ...testDoc.data() } as Test;
-          setTest(testData);
-          setTimeLeft(testData.duration * 60);
-        } else {
-          // Handle test not found
-          console.error("Test not found");
-        }
-      } catch (error) {
-        console.error("Error fetching test:", error);
-      } finally {
+    // Simulate fetching the test
+    setLoading(true);
+    setTimeout(() => {
+        setTest(MOCK_TEST);
+        setTimeLeft(MOCK_TEST.duration * 60);
         setLoading(false);
-      }
-    };
-    fetchTest();
+    }, 500);
   }, [testId]);
 
   useEffect(() => {
@@ -89,7 +99,7 @@ export default function TestPage() {
 
   const handlePrev = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev + 1);
+      setCurrentQuestionIndex(prev => prev - 1);
     }
   };
 
@@ -99,7 +109,6 @@ export default function TestPage() {
   
   const submitTest = async () => {
     if (!test) return;
-    const user = MOCK_USER; // Use mock user
 
     setTimeLeft(0);
 
@@ -118,33 +127,20 @@ export default function TestPage() {
       };
     });
 
-    try {
-      const resultDocRef = await addDoc(collection(db, "results"), {
-        testId: test.id,
-        testTitle: test.title,
-        candidateId: user.uid,
-        candidateEmail: user.email,
-        answers: submittedAnswers,
-        score: score,
-        totalQuestions: test.questions.length,
-        submittedAt: new Date(),
-      });
+    const resultId = `mock-result-${Date.now()}`;
       
-      localStorage.setItem(`result-${resultDocRef.id}`, JSON.stringify({
-        score,
-        totalQuestions: test.questions.length,
-        questions: submittedAnswers.map(ans => ({
-            text: ans.questionText,
-            userAnswer: ans.selectedOption,
-            correctAnswer: ans.correctOption
-        }))
-      }));
+    localStorage.setItem(`result-${resultId}`, JSON.stringify({
+      score,
+      totalQuestions: test.questions.length,
+      questions: submittedAnswers.map(ans => ({
+          text: ans.questionText,
+          userAnswer: ans.selectedOption,
+          correctAnswer: ans.correctOption
+      }))
+    }));
 
-      router.push(`/candidate/exams/${test.id}/result?resultId=${resultDocRef.id}`);
+    router.push(`/candidate/exams/${test.id}/result?resultId=${resultId}`);
 
-    } catch (error) {
-      console.error("Error submitting test results: ", error);
-    }
   };
   
   if (loading || !test) {
@@ -216,3 +212,5 @@ export default function TestPage() {
     </div>
   );
 }
+
+    
