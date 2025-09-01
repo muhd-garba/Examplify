@@ -39,7 +39,7 @@ export default function HomePage() {
         <section className="relative w-full py-24 md:py-32 lg:py-40">
            <div
             aria-hidden="true"
-            className="absolute inset-0 -z-10 h-full w-full bg-background bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] dark:bg-[radial-gradient(#374151_1px,transparent_1px)]"
+            className="absolute inset-0 -z-10 h-full w-full bg-background bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] dark:bg-[radial-gradient(hsl(var(--muted))_1px,transparent_1px)]"
           />
            <div
             aria-hidden="true"
@@ -48,33 +48,32 @@ export default function HomePage() {
           <div className="container relative grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
             <div className="space-y-6 text-center lg:text-left animate-fade-in-up">
               <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
-                Modern Assessment, <span className="text-primary">Simplified</span>.
+                The Future of <span className="text-primary">Secure</span> Online Assessment
               </h1>
               <p className="text-lg text-muted-foreground md:text-xl">
-                Examplify is the all-in-one platform for creating, managing, and conducting secure online examinations with ease and efficiency.
+                Examplify is a robust, all-in-one platform for creating, managing, and conducting secure computer-based tests with ease and efficiency.
               </p>
               <div className="flex flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start">
                 <Link href="/admin/login">
                   <Button size="lg" className="w-full transition-transform hover:scale-105">
-                    Go to Admin Dashboard
-                    <ArrowRight className="ml-2 h-5 w-5" />
+                    Admin Dashboard
                   </Button>
                 </Link>
                 <Link href="/candidate/login">
                   <Button size="lg" variant="outline" className="w-full transition-transform hover:scale-105">
-                    Go to Candidate Dashboard
+                    Candidate Login
                   </Button>
                 </Link>
               </div>
             </div>
             <div className="relative animate-fade-in-up [animation-delay:200ms]">
                 <Image
-                  src="https://picsum.photos/seed/exam-laptop/800/600"
-                  alt="A student taking an online exam on a laptop"
+                  src="https://picsum.photos/seed/test-center/800/600"
+                  alt="Students taking an exam in a computer lab"
                   width={800}
                   height={600}
                   className="rounded-xl shadow-2xl transition-transform duration-300 hover:scale-105"
-                  data-ai-hint="student online exam"
+                  data-ai-hint="exam students"
                 />
             </div>
           </div>
@@ -129,12 +128,12 @@ export default function HomePage() {
                 </div>
                  <div className="order-1 lg:order-2 animate-fade-in-up [animation-delay:200ms]">
                     <Image
-                        src="https://picsum.photos/seed/dashboard-view/800/700"
-                        alt="Screenshot of admin dashboard showing charts and graphs"
+                        src="https://picsum.photos/seed/computer-lab/800/700"
+                        alt="A person working on a computer in a modern office"
                         width={800}
                         height={700}
                         className="rounded-xl shadow-2xl transition-transform duration-300 hover:scale-105"
-                        data-ai-hint="admin dashboard computer"
+                        data-ai-hint="student computer"
                     />
                 </div>
             </div>
@@ -228,5 +227,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-    
