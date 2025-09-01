@@ -4,22 +4,30 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, BookOpen, ShieldCheck, BarChart2 } from 'lucide-react';
+import { ArrowRight, CheckCircle, BookOpen, Users, BarChart2 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 
 export default function HomePage() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 max-w-screen-2xl items-center justify-between">
+        <div className="container flex h-16 max-w-screen-2xl items-center justify-between">
           <Logo />
-          <nav className="flex items-center gap-4">
-            <Link href="/admin/dashboard">
+          <nav className="hidden items-center gap-2 md:flex">
+            <Link href="/admin/dashboard" legacyBehavior passHref>
               <Button variant="ghost">Admin Login</Button>
             </Link>
-            <Link href="/candidate/dashboard">
+            <Link href="/candidate/dashboard" legacyBehavior passHref>
               <Button>Candidate Login <ArrowRight className="ml-2 h-4 w-4" /></Button>
+            </Link>
+          </nav>
+           <nav className="flex items-center gap-2 md:hidden">
+             <Link href="/admin/dashboard" legacyBehavior passHref>
+                <Button size="sm">Admin</Button>
+            </Link>
+             <Link href="/candidate/dashboard" legacyBehavior passHref>
+                <Button size="sm">Candidate</Button>
             </Link>
           </nav>
         </div>
@@ -28,29 +36,33 @@ export default function HomePage() {
       {/* Main Content */}
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative py-20 md:py-32">
+        <section className="relative w-full py-24 md:py-32 lg:py-40">
            <div
             aria-hidden="true"
-            className="absolute inset-0 top-0 h-full w-full bg-background [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]"
+            className="absolute inset-0 -z-10 h-full w-full bg-background bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] dark:bg-[radial-gradient(#374151_1px,transparent_1px)]"
+          />
+           <div
+            aria-hidden="true"
+            className="absolute inset-0 top-0 z-0 h-full w-full bg-background [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]"
           />
           <div className="container relative grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
             <div className="space-y-6 text-center lg:text-left animate-fade-in-up">
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-                The Future of Online Assessment is Here
+              <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
+                Modern Assessment, <span className="text-primary">Simplified</span>.
               </h1>
-              <p className="text-lg text-muted-foreground">
-                Examplify provides a seamless, secure, and intuitive platform for creating, managing, and taking tests online. Empower your institution with modern tools.
+              <p className="text-lg text-muted-foreground md:text-xl">
+                Examplify is the all-in-one platform for creating, managing, and conducting secure online examinations with ease and efficiency.
               </p>
               <div className="flex flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start">
-                <Link href="/admin/dashboard">
-                  <Button size="lg" className="w-full">
-                    Get Started as Admin
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                <Link href="/admin/dashboard" passHref>
+                  <Button size="lg" className="w-full transition-transform hover:scale-105">
+                    Go to Admin Dashboard
+                    <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
-                <Link href="/candidate/dashboard">
-                  <Button size="lg" variant="outline" className="w-full">
-                    Take a Test
+                <Link href="/candidate/dashboard" passHref>
+                  <Button size="lg" variant="outline" className="w-full transition-transform hover:scale-105">
+                    Go to Candidate Dashboard
                   </Button>
                 </Link>
               </div>
@@ -58,11 +70,11 @@ export default function HomePage() {
             <div className="relative animate-fade-in-up [animation-delay:200ms]">
                 <Image
                   src="https://picsum.photos/800/600"
-                  alt="A modern computer-based testing interface"
+                  alt="A student taking an online exam on a laptop"
                   width={800}
                   height={600}
-                  className="rounded-xl shadow-2xl"
-                  data-ai-hint="modern computer interface"
+                  className="rounded-xl shadow-2xl transition-transform duration-300 hover:scale-105"
+                  data-ai-hint="student online exam"
                 />
             </div>
           </div>
@@ -70,22 +82,22 @@ export default function HomePage() {
 
         {/* Features Section */}
         <section id="features" className="py-20 md:py-28 bg-muted/50">
-          <div className="container space-y-12">
-            <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Why Choose Examplify?</h2>
+          <div className="container space-y-16">
+            <div className="mx-auto max-w-3xl text-center">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Everything You Need for Seamless Exams</h2>
               <p className="mt-4 text-lg text-muted-foreground">
-                Everything you need for a streamlined and secure examination process.
+                From creation to analysis, Examplify streamlines the entire examination lifecycle.
               </p>
             </div>
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               {[
-                { icon: BookOpen, title: "Effortless Test Creation", desc: "Build comprehensive tests with our intuitive creator, supporting multiple question types." },
-                { icon: ShieldCheck, title: "Secure & Reliable", desc: "Ensure test integrity with secure authentication and a robust, scalable infrastructure." },
-                { icon: BarChart2, title: "Instant Analytics", desc: "Get immediate results and detailed performance insights for both candidates and administrators." },
+                { icon: BookOpen, title: "Intuitive Test Builder", desc: "Easily create tests with multiple question types, time limits, and custom instructions." },
+                { icon: Users, title: "Candidate Management", desc: "Invite candidates via email, track their progress, and manage user roles effortlessly." },
+                { icon: BarChart2, title: "Instant, Detailed Results", desc: "Automated grading and in-depth analytics provide immediate insights for everyone." },
               ].map((feature, i) => (
-                <div key={i} className="flex flex-col items-center text-center p-6 bg-background rounded-lg shadow-md animate-fade-in-up" style={{animationDelay: `${i * 200}ms`}}>
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <feature.icon className="h-6 w-6" />
+                <div key={i} className="flex flex-col items-center text-center p-8 bg-card rounded-lg shadow-lg transition-transform duration-300 hover:-translate-y-2 animate-fade-in-up" style={{animationDelay: `${i * 150}ms`}}>
+                  <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <feature.icon className="h-7 w-7" />
                   </div>
                   <h3 className="mb-2 text-xl font-bold">{feature.title}</h3>
                   <p className="text-muted-foreground">{feature.desc}</p>
@@ -95,29 +107,34 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* How It Works Section */}
+        {/* Why Choose Us Section */}
         <section className="py-20 md:py-28">
-            <div className="container grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
+            <div className="container grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
                 <div className="order-2 lg:order-1 animate-fade-in-up">
-                    <h2 className="text-3xl font-bold tracking-tight">Simple Steps to Success</h2>
-                    <p className="mt-4 text-lg text-muted-foreground">Our platform is designed for ease of use. Get up and running in minutes.</p>
-                    <ul className="mt-8 space-y-6">
-                        {["Create a test with our intuitive builder.", "Invite candidates with a simple email list.", "View detailed results instantly upon completion."].map((step, i) => (
+                    <h2 className="text-3xl font-bold tracking-tight">Focus on Learning, Not Logistics</h2>
+                    <p className="mt-4 text-lg text-muted-foreground">Examplify is built with a modern, secure, and scalable foundation, allowing you to conduct assessments with confidence.</p>
+                    <ul className="mt-8 space-y-5">
+                        {[
+                            { text: "Secure Authentication for Admins and Candidates." },
+                            { text: "Timed test environment with auto-submission." },
+                            { text: "Detailed performance review for candidates after completion." },
+                            { text: "Built on a robust stack for reliability and speed." },
+                        ].map((item, i) => (
                              <li key={i} className="flex items-start">
-                                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold">{i + 1}</div>
-                                <p className="ml-4 text-lg">{step}</p>
+                                <CheckCircle className="mr-3 mt-1 h-6 w-6 flex-shrink-0 text-green-500" />
+                                <p className="text-lg text-muted-foreground">{item.text}</p>
                             </li>
                         ))}
                     </ul>
                 </div>
                  <div className="order-1 lg:order-2 animate-fade-in-up [animation-delay:200ms]">
                     <Image
-                        src="https://picsum.photos/800/600?grayscale"
-                        alt="Screenshot of admin dashboard"
+                        src="https://picsum.photos/800/700"
+                        alt="Screenshot of admin dashboard showing charts and graphs"
                         width={800}
-                        height={600}
-                        className="rounded-xl shadow-xl"
-                        data-ai-hint="admin dashboard"
+                        height={700}
+                        className="rounded-xl shadow-2xl transition-transform duration-300 hover:scale-105"
+                        data-ai-hint="admin dashboard charts"
                     />
                 </div>
             </div>
@@ -127,20 +144,20 @@ export default function HomePage() {
         <section className="py-20 md:py-28 bg-muted/50">
             <div className="container">
                  <div className="mx-auto max-w-2xl text-center">
-                    <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">What Our Users Say</h2>
+                    <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Trusted by Educators & Professionals</h2>
                  </div>
                 <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
                     {[
-                        { name: "Sarah L.", role: "Professor", quote: "Examplify has revolutionized how I conduct my midterms. It's so much more efficient than paper-based tests.", avatarHint: "woman teacher" },
-                        { name: "Michael B.", role: "HR Manager", quote: "We use Examplify for our pre-employment screening. It's reliable, secure, and saves us countless hours.", avatarHint: "man suit" },
-                        { name: "Jessica P.", role: "Student", quote: "Taking tests on Examplify is straightforward and stress-free. I love getting my results right away!", avatarHint: "student person" },
+                        { name: "Dr. Evelyn Reed", role: "University Professor", quote: "Examplify has transformed my final exams. The automated grading saves me days of work, and the students appreciate the instant feedback.", avatarHint: "woman professor" },
+                        { name: "David Chen", role: "Hiring Manager", quote: "We use Examplify for our technical assessments. It's secure, reliable, and provides a professional experience for our candidates.", avatarHint: "man professional" },
+                        { name: "Maria Garcia", role: "High School Student", quote: "The interface is so clean and easy to use. I can focus on the test without any distractions. Getting my score right away is a huge plus!", avatarHint: "student happy" },
                     ].map((t, i) => (
-                        <div key={i} className="bg-background p-6 rounded-lg shadow-md animate-fade-in-up" style={{animationDelay: `${i * 200}ms`}}>
-                            <p className="italic text-muted-foreground">"{t.quote}"</p>
-                            <div className="mt-4 flex items-center gap-3">
-                                <Image src={`https://picsum.photos/seed/${t.name}/40/40`} alt={t.name} width={40} height={40} className="rounded-full" data-ai-hint={t.avatarHint} />
+                        <div key={i} className="bg-card p-6 rounded-lg shadow-lg flex flex-col animate-fade-in-up" style={{animationDelay: `${i * 200}ms`}}>
+                            <p className="flex-grow text-muted-foreground before:content-['“'] after:content-['”'] before:mr-1 after:ml-1 before:text-2xl after:text-2xl before:font-serif after:font-serif">{t.quote}</p>
+                            <div className="mt-4 flex items-center gap-4 border-t border-border pt-4">
+                                <Image src={`https://picsum.photos/seed/${t.name}/48/48`} alt={t.name} width={48} height={48} className="rounded-full" data-ai-hint={t.avatarHint} />
                                 <div>
-                                    <p className="font-semibold">{t.name}</p>
+                                    <p className="font-semibold text-foreground">{t.name}</p>
                                     <p className="text-sm text-muted-foreground">{t.role}</p>
                                 </div>
                             </div>
@@ -153,15 +170,15 @@ export default function HomePage() {
         {/* Final CTA Section */}
         <section className="py-20 md:py-32">
             <div className="container text-center">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Ready to Transform Your Assessments?</h2>
-                <p className="mt-4 mx-auto max-w-xl text-lg text-muted-foreground">
-                    Join leading institutions and companies who trust Examplify. Create your first test today.
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Ready to Revolutionize Your Assessments?</h2>
+                <p className="mt-4 mx-auto max-w-2xl text-lg text-muted-foreground">
+                    Join leading institutions and companies who trust Examplify. Create your first test today and experience the future of online testing.
                 </p>
                 <div className="mt-8">
                      <Link href="/admin/dashboard">
-                        <Button size="lg">
+                        <Button size="lg" className="transition-transform hover:scale-105">
                             Get Started for Free
-                            <ArrowRight className="ml-2 h-4 w-4" />
+                            <ArrowRight className="ml-2 h-5 w-5" />
                         </Button>
                     </Link>
                 </div>
@@ -170,11 +187,46 @@ export default function HomePage() {
       </main>
       
       {/* Footer */}
-      <footer className="border-t">
-          <div className="container py-6 text-center text-sm text-muted-foreground">
-              © {new Date().getFullYear()} Examplify. All Rights Reserved.
+      <footer className="border-t bg-background">
+          <div className="container py-8">
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+                <div className="space-y-4">
+                    <Logo />
+                    <p className="text-muted-foreground text-sm max-w-xs">A modern, secure, and intuitive platform for online examinations.</p>
+                </div>
+                <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 md:col-span-2">
+                    <div>
+                        <h3 className="font-semibold text-foreground">Product</h3>
+                        <ul className="mt-4 space-y-2 text-sm">
+                            <li><Link href="#features" className="text-muted-foreground hover:text-primary">Features</Link></li>
+                            <li><Link href="#" className="text-muted-foreground hover:text-primary">Pricing</Link></li>
+                            <li><Link href="#" className="text-muted-foreground hover:text-primary">Security</Link></li>
+                        </ul>
+                    </div>
+                     <div>
+                        <h3 className="font-semibold text-foreground">Company</h3>
+                        <ul className="mt-4 space-y-2 text-sm">
+                            <li><Link href="#" className="text-muted-foreground hover:text-primary">About Us</Link></li>
+                            <li><Link href="#" className="text-muted-foreground hover:text-primary">Contact</Link></li>
+                            <li><Link href="#" className="text-muted-foreground hover:text-primary">Careers</Link></li>
+                        </ul>
+                    </div>
+                     <div>
+                        <h3 className="font-semibold text-foreground">Legal</h3>
+                        <ul className="mt-4 space-y-2 text-sm">
+                            <li><Link href="#" className="text-muted-foreground hover:text-primary">Privacy Policy</Link></li>
+                            <li><Link href="#" className="text-muted-foreground hover:text-primary">Terms of Service</Link></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+             <div className="mt-8 border-t pt-6 text-center text-sm text-muted-foreground">
+                <p>&copy; {new Date().getFullYear()} Examplify. All Rights Reserved.</p>
+            </div>
           </div>
       </footer>
     </div>
   );
 }
+
+    

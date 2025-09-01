@@ -80,7 +80,7 @@ export default function CandidateLayout({
           </SidebarMenu>
           <div className="flex items-center gap-3 p-2 group-data-[collapsible=icon]:justify-center">
             <Avatar className="size-9">
-              <AvatarImage src={"https://placehold.co/40x40.png"} alt="Candidate" data-ai-hint="person student" />
+              <AvatarImage src={"https://picsum.photos/40/40?grayscale"} alt="Candidate" data-ai-hint="person student" />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
             <div className="flex flex-col group-data-[collapsible=icon]:hidden">
@@ -96,3 +96,5 @@ export default function CandidateLayout({
     </SidebarProvider>
   );
 }
+
+    

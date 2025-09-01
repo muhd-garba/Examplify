@@ -88,7 +88,7 @@ export default function AdminLayout({
           </SidebarMenu>
           <div className="flex items-center gap-3 p-2 group-data-[collapsible=icon]:justify-center">
             <Avatar className="size-9">
-              <AvatarImage src={"https://placehold.co/40x40.png"} alt="Admin" data-ai-hint="person" />
+              <AvatarImage src={"https://picsum.photos/40/40"} alt="Admin" data-ai-hint="person" />
               <AvatarFallback>AD</AvatarFallback>
             </Avatar>
             <div className="flex flex-col group-data-[collapsible=icon]:hidden">
@@ -104,3 +104,5 @@ export default function AdminLayout({
     </SidebarProvider>
   );
 }
+
+    
