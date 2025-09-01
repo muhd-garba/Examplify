@@ -69,7 +69,7 @@ export default function HomePage() {
             </div>
             <div className="relative animate-fade-in-up [animation-delay:200ms]">
                 <Image
-                  src="https://picsum.photos/800/600"
+                  src="https://picsum.photos/seed/exam/800/600"
                   alt="A student taking an online exam on a laptop"
                   width={800}
                   height={600}
@@ -129,12 +129,12 @@ export default function HomePage() {
                 </div>
                  <div className="order-1 lg:order-2 animate-fade-in-up [animation-delay:200ms]">
                     <Image
-                        src="https://picsum.photos/800/700"
+                        src="https://picsum.photos/seed/computer/800/700"
                         alt="Screenshot of admin dashboard showing charts and graphs"
                         width={800}
                         height={700}
                         className="rounded-xl shadow-2xl transition-transform duration-300 hover:scale-105"
-                        data-ai-hint="admin dashboard charts"
+                        data-ai-hint="admin dashboard computer"
                     />
                 </div>
             </div>
@@ -228,5 +228,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-    
