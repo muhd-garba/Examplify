@@ -15,18 +15,18 @@ export default function HomePage() {
         <div className="container flex h-16 max-w-screen-2xl items-center justify-between">
           <Logo />
           <nav className="hidden items-center gap-2 md:flex">
-            <Link href="/admin/dashboard" legacyBehavior passHref>
+            <Link href="/admin/login">
               <Button variant="ghost">Admin Login</Button>
             </Link>
-            <Link href="/candidate/dashboard" legacyBehavior passHref>
+            <Link href="/candidate/login">
               <Button>Candidate Login <ArrowRight className="ml-2 h-4 w-4" /></Button>
             </Link>
           </nav>
            <nav className="flex items-center gap-2 md:hidden">
-             <Link href="/admin/dashboard" legacyBehavior passHref>
+             <Link href="/admin/login">
                 <Button size="sm">Admin</Button>
             </Link>
-             <Link href="/candidate/dashboard" legacyBehavior passHref>
+             <Link href="/candidate/login">
                 <Button size="sm">Candidate</Button>
             </Link>
           </nav>
@@ -54,13 +54,13 @@ export default function HomePage() {
                 Examplify is the all-in-one platform for creating, managing, and conducting secure online examinations with ease and efficiency.
               </p>
               <div className="flex flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start">
-                <Link href="/admin/dashboard" passHref>
+                <Link href="/admin/login">
                   <Button size="lg" className="w-full transition-transform hover:scale-105">
                     Go to Admin Dashboard
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
-                <Link href="/candidate/dashboard" passHref>
+                <Link href="/candidate/login">
                   <Button size="lg" variant="outline" className="w-full transition-transform hover:scale-105">
                     Go to Candidate Dashboard
                   </Button>
@@ -175,7 +175,7 @@ export default function HomePage() {
                     Join leading institutions and companies who trust Examplify. Create your first test today and experience the future of online testing.
                 </p>
                 <div className="mt-8">
-                     <Link href="/admin/dashboard">
+                     <Link href="/admin/login">
                         <Button size="lg" className="transition-transform hover:scale-105">
                             Get Started for Free
                             <ArrowRight className="ml-2 h-5 w-5" />
@@ -228,5 +228,6 @@ export default function HomePage() {
     </div>
   );
 }
+
 
     
