@@ -4,65 +4,37 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    function isUser(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-    
-    function getUserData(userId) {
-        return get(/databases/$(database)/documents/users/$(userId)).data
-    }
-
-    function isAdmin() {
-        return isSignedIn() && getUserData(request.auth.uid).role == 'admin';
-    }
-
-    function isCandidate() {
-        return isSignedIn() && getUserData(request.auth.uid).role == 'candidate';
-    }
-    
-    // USERS collection
-    // - Anyone can create their own user document (sign up).
-    // - Users can only read/update their own data.
-    // - Admins can read any user's data.
+    // Rules for the 'users' collection
     match /users/{userId} {
-      allow read: if isAdmin() || isUser(userId);
-      allow create: if isSignedIn();
-      allow update: if isUser(userId);
-      allow delete: if false; // Nobody can delete user profiles
+      // A user can read their own document if they are logged in.
+      allow read: if request.auth != null && request.auth.uid == userId;
+
+      // A user can create their own document upon sign-up.
+      // They cannot update it once it's created.
+      allow create: if request.auth != null && request.auth.uid == userId;
     }
 
-    // TESTS collection
-    // - Only Admins can create, update, or delete tests.
-    // - Candidates can read tests if they have an invitation.
+    // Placeholder rules for other collections. 
+    // We will need to secure these as we build out features.
     match /tests/{testId} {
-      allow read: if isAdmin() || (isCandidate() && exists(/databases/$(database)/documents/invitations/$(request.auth.uid + '_' + testId)));
-      allow create, update, delete: if isAdmin();
+      // For now, allow reads by any authenticated user. We'll refine this.
+      allow read: if request.auth != null;
+      // Only admins should be able to write tests.
+      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
-    
-    // INVITATIONS collection
-    // An invitation document ID is formatted as: `candidateUID_testID`
-    // This allows us to easily check for existence.
-    // - Admins can create invitations.
-    // - Candidates can read their own invitations.
-    // - Admins can update/delete invitations.
+
     match /invitations/{invitationId} {
-        allow read: if isAdmin() || (isCandidate() && request.auth.uid == invitationId.split('_')[0]);
-        allow create, update, delete: if isAdmin();
+      // Only admins can create invitations.
+      allow create: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      // Authenticated users can read invitations (to see if they are invited).
+      allow read: if request.auth != null;
     }
-    
-    // RESULTS collection
-    // - Candidates can create their own result.
-    // - Candidates can read their own results.
-    // - Admins can read all results.
+
     match /results/{resultId} {
-        allow read: if isAdmin() || (isCandidate() && resource.data.candidateId == request.auth.uid);
-        allow create: if isCandidate();
-        allow update, delete: if false; // Results are immutable
+       // Candidates can create their own results.
+      allow create: if request.auth != null;
+      // Users can only read their own results, admins can read all.
+      allow read: if request.auth != null && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' || resource.data.candidateId == request.auth.uid);
     }
   }
 }
