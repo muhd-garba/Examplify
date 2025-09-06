@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -9,6 +8,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -17,6 +17,9 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from 'lucide-react';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { auth, db } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function CandidateLoginPage() {
   const [email, setEmail] = useState('');
@@ -29,20 +32,57 @@ export default function CandidateLoginPage() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // MOCK LOGIN
-    setTimeout(() => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists() && userDoc.data().role !== 'candidate') {
+        await auth.signOut();
+        throw new Error("This account is not registered as a candidate.");
+      }
+      
        toast({ title: "Login Successful", description: "Redirecting to your dashboard..." });
        router.push('/candidate/dashboard');
-    }, 1000);
+    } catch(error: any) {
+        toast({ variant: "destructive", title: "Login Failed", description: error.message });
+    } finally {
+        setLoading(false);
+    }
   };
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
-    // MOCK GOOGLE LOGIN
-    setTimeout(() => {
+     try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists() && userDoc.data().role !== 'candidate') {
+          await auth.signOut();
+          throw new Error("This Google account is registered as an Admin. Please use a different account.");
+      }
+
+      if (!userDoc.exists()) {
+          // This is a new user, create their document
+          await setDoc(doc(db, "users", user.uid), {
+            uid: user.uid,
+            name: user.displayName,
+            email: user.email,
+            role: 'candidate',
+            createdAt: new Date(),
+          });
+      }
+      
       toast({ title: "Login Successful", description: "Redirecting to your dashboard..." });
       router.push('/candidate/dashboard');
-    }, 1000);
+
+    } catch (error: any) {
+       toast({ variant: "destructive", title: "Login Failed", description: error.message });
+    } finally {
+      setGoogleLoading(false);
+    }
   };
 
   return (
@@ -67,9 +107,7 @@ export default function CandidateLoginPage() {
             />
           </div>
           <div className="grid gap-2">
-            <div className="flex items-center">
               <Label htmlFor="password">Password</Label>
-            </div>
             <Input 
                 id="password" 
                 type="password" 
@@ -89,6 +127,14 @@ export default function CandidateLoginPage() {
             Sign in with Google
         </Button>
       </CardContent>
+       <CardFooter>
+        <div className="text-sm text-center w-full">
+            Don&apos;t have an account?{' '}
+            <Link href="/candidate/signup" className="underline">
+              Sign up
+            </Link>
+          </div>
+      </CardFooter>
     </Card>
   );
 }

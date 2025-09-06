@@ -10,6 +10,7 @@ import {
   BarChart3,
   Settings,
   LogOut,
+  Loader2,
 } from 'lucide-react';
 
 import {
@@ -26,7 +27,9 @@ import {
 } from '@/components/ui/sidebar';
 import { Logo } from '@/components/logo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { auth } from '@/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 const navItems = [
   { href: '/admin/dashboard', icon: BarChart3, label: 'Dashboard' },
@@ -43,6 +46,35 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { user, role, loading, roleLoading } = useAuth();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    await auth.signOut();
+    toast({ title: 'Signed Out', description: 'You have been successfully signed out.' });
+    router.push('/admin/login');
+  };
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace('/admin/login');
+    }
+  }, [user, loading, router]);
+
+  useEffect(() => {
+    if (!roleLoading && user && role !== 'admin') {
+      router.replace('/candidate/dashboard');
+      toast({ variant: 'destructive', title: 'Access Denied', description: 'You do not have permission to access the admin dashboard.' });
+    }
+  }, [user, role, roleLoading, router, toast]);
+
+  if (loading || roleLoading || !user || role !== 'admin') {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider>
@@ -78,22 +110,20 @@ export default function AdminLayout({
               </Link>
             </SidebarMenuItem>
              <SidebarMenuItem>
-                <Link href="/">
-                  <SidebarMenuButton>
+                  <SidebarMenuButton onClick={handleSignOut}>
                     <LogOut />
                     <span>Exit</span>
                   </SidebarMenuButton>
-                </Link>
             </SidebarMenuItem>
           </SidebarMenu>
           <div className="flex items-center gap-3 p-2 group-data-[collapsible=icon]:justify-center">
             <Avatar className="size-9">
-              <AvatarImage src={"https://picsum.photos/40/40"} alt="Admin" data-ai-hint="person" />
-              <AvatarFallback>AD</AvatarFallback>
+              <AvatarImage src={user?.photoURL ?? `https://picsum.photos/40/40`} alt={user?.displayName ?? "Admin"} data-ai-hint="person" />
+              <AvatarFallback>{user?.displayName?.charAt(0) ?? 'A'}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-              <p className="text-sm font-medium">Admin User</p>
-              <p className="text-xs text-muted-foreground">admin@examplify.com</p>
+              <p className="text-sm font-medium">{user?.displayName ?? 'Admin User'}</p>
+              <p className="text-xs text-muted-foreground">{user?.email}</p>
             </div>
           </div>
         </SidebarFooter>
@@ -104,5 +134,3 @@ export default function AdminLayout({
     </SidebarProvider>
   );
 }
-
-    

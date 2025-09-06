@@ -1,11 +1,68 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow public read and write access to all collections and documents.
-    // This is necessary because we have removed the authentication system.
-    match /{document=**} {
-      allow read, write: if true;
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isUser(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    function getUserData(userId) {
+        return get(/databases/$(database)/documents/users/$(userId)).data
+    }
+
+    function isAdmin() {
+        return isSignedIn() && getUserData(request.auth.uid).role == 'admin';
+    }
+
+    function isCandidate() {
+        return isSignedIn() && getUserData(request.auth.uid).role == 'candidate';
+    }
+    
+    // USERS collection
+    // - Anyone can create their own user document (sign up).
+    // - Users can only read/update their own data.
+    // - Admins can read any user's data.
+    match /users/{userId} {
+      allow read: if isAdmin() || isUser(userId);
+      allow create: if isSignedIn();
+      allow update: if isUser(userId);
+      allow delete: if false; // Nobody can delete user profiles
+    }
+
+    // TESTS collection
+    // - Only Admins can create, update, or delete tests.
+    // - Candidates can read tests if they have an invitation.
+    match /tests/{testId} {
+      allow read: if isAdmin() || (isCandidate() && exists(/databases/$(database)/documents/invitations/$(request.auth.uid + '_' + testId)));
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // INVITATIONS collection
+    // An invitation document ID is formatted as: `candidateUID_testID`
+    // This allows us to easily check for existence.
+    // - Admins can create invitations.
+    // - Candidates can read their own invitations.
+    // - Admins can update/delete invitations.
+    match /invitations/{invitationId} {
+        allow read: if isAdmin() || (isCandidate() && request.auth.uid == invitationId.split('_')[0]);
+        allow create, update, delete: if isAdmin();
+    }
+    
+    // RESULTS collection
+    // - Candidates can create their own result.
+    // - Candidates can read their own results.
+    // - Admins can read all results.
+    match /results/{resultId} {
+        allow read: if isAdmin() || (isCandidate() && resource.data.candidateId == request.auth.uid);
+        allow create: if isCandidate();
+        allow update, delete: if false; // Results are immutable
     }
   }
 }

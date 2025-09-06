@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -9,6 +8,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -17,6 +17,9 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from 'lucide-react';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { auth, db } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
@@ -29,25 +32,47 @@ export default function AdminLoginPage() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // MOCK LOGIN
-    setTimeout(() => {
-      if (email.toLowerCase() === 'admin@examplify.com' && password === 'password') {
-         toast({ title: "Login Successful", description: "Redirecting to dashboard..." });
-         router.push('/admin/dashboard');
-      } else {
-         toast({ variant: "destructive", title: "Login Failed", description: "Invalid admin credentials." });
-         setLoading(false);
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (!userDoc.exists() || userDoc.data().role !== 'admin') {
+        await auth.signOut();
+        throw new Error("No admin account found with these credentials.");
       }
-    }, 1000);
+
+      toast({ title: "Login Successful", description: "Redirecting to dashboard..." });
+      router.push('/admin/dashboard');
+
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Login Failed", description: error.message });
+    } finally {
+      setLoading(false);
+    }
   };
   
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
-    // MOCK GOOGLE LOGIN
-    setTimeout(() => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (!userDoc.exists() || userDoc.data().role !== 'admin') {
+          await auth.signOut();
+          throw new Error("This Google account is not registered as an admin.");
+      }
+      
       toast({ title: "Login Successful", description: "Redirecting to dashboard..." });
       router.push('/admin/dashboard');
-    }, 1000);
+
+    } catch (error: any) {
+       toast({ variant: "destructive", title: "Login Failed", description: error.message });
+    } finally {
+      setGoogleLoading(false);
+    }
   };
 
   return (
@@ -72,9 +97,7 @@ export default function AdminLoginPage() {
             />
           </div>
           <div className="grid gap-2">
-            <div className="flex items-center">
-              <Label htmlFor="password">Password</Label>
-            </div>
+            <Label htmlFor="password">Password</Label>
             <Input 
                 id="password" 
                 type="password" 
@@ -94,6 +117,14 @@ export default function AdminLoginPage() {
             Sign in with Google
         </Button>
       </CardContent>
+       <CardFooter>
+        <div className="text-sm text-center w-full">
+            Don&apos;t have an admin account?{' '}
+            <Link href="/admin/signup" className="underline">
+              Sign up
+            </Link>
+          </div>
+      </CardFooter>
     </Card>
   );
 }
