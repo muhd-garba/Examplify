@@ -53,20 +53,41 @@ export default function CandidateLayout({
   };
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.replace('/candidate/login');
+    const isAuthPage = pathname.includes('/candidate/login') || pathname.includes('/candidate/signup');
+    
+    if (loading || roleLoading) {
+      return;
     }
-  }, [user, loading, router]);
 
-  useEffect(() => {
-    if (!roleLoading && user && role === 'admin') {
+    if(user && role === 'candidate' && isAuthPage) {
+        router.replace('/candidate/dashboard');
+    }
+    
+    if (!user && !isAuthPage) {
+        router.replace('/candidate/login');
+        return;
+    }
+
+    if (user && role === 'admin') {
       router.replace('/admin/dashboard');
       toast({ variant: 'destructive', title: 'Access Denied', description: 'Admins cannot access the candidate dashboard.' });
     }
-  }, [user, role, roleLoading, router, toast]);
+  }, [user, role, loading, roleLoading, pathname, router, toast]);
 
-   if (loading || roleLoading || !user || role === 'admin') {
+   if ((loading || roleLoading) && !(pathname.includes('/candidate/login') || pathname.includes('/candidate/signup'))) {
     return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if ((pathname.includes('/candidate/login') || pathname.includes('/candidate/signup'))) {
+    return <>{children}</>
+  }
+  
+  if (role !== 'candidate') {
+     return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>

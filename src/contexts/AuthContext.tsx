@@ -30,19 +30,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const fetchUserRole = async () => {
+      setRoleLoading(true);
       if (user) {
-        setRoleLoading(true);
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
           setRole(userDoc.data().role as UserRole);
         } else {
-          setRole(null);
+          // This case might happen if a user is created in Auth but not in Firestore.
+          setRole(null); 
         }
-        setRoleLoading(false);
       } else {
         setRole(null);
-        setRoleLoading(false);
       }
+      setRoleLoading(false);
     };
 
     fetchUserRole();

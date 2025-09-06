@@ -55,27 +55,51 @@ export default function AdminLayout({
     toast({ title: 'Signed Out', description: 'You have been successfully signed out.' });
     router.push('/admin/login');
   };
-
+  
   useEffect(() => {
-    if (!loading && !user) {
-      router.replace('/admin/login');
+    const isAuthPage = pathname.includes('/admin/login') || pathname.includes('/admin/signup');
+    
+    if (loading || roleLoading) {
+      // Still loading, don't do anything yet.
+      return;
     }
-  }, [user, loading, router]);
 
-  useEffect(() => {
-    if (!roleLoading && user && role !== 'admin') {
-      router.replace('/candidate/dashboard');
-      toast({ variant: 'destructive', title: 'Access Denied', description: 'You do not have permission to access the admin dashboard.' });
+    if (user && role === 'admin' && isAuthPage) {
+        router.replace('/admin/dashboard');
     }
-  }, [user, role, roleLoading, router, toast]);
 
-  if (loading || roleLoading || !user || role !== 'admin') {
+    if (!user && !isAuthPage) {
+        router.replace('/admin/login');
+        return;
+    }
+    
+    if (user && role === 'candidate') {
+        router.replace('/candidate/dashboard');
+        toast({ variant: 'destructive', title: 'Access Denied', description: 'You do not have permission to access the admin dashboard.' });
+    }
+
+  }, [user, role, loading, roleLoading, pathname, router, toast]);
+
+  if ((loading || roleLoading) && !(pathname.includes('/admin/login') || pathname.includes('/admin/signup'))) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
+
+  if ((pathname.includes('/admin/login') || pathname.includes('/admin/signup'))) {
+    return <>{children}</>
+  }
+  
+  if (role !== 'admin') {
+     return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
 
   return (
     <SidebarProvider>
