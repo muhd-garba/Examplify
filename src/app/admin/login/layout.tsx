@@ -1,4 +1,3 @@
-
 import type { ReactNode } from 'react';
 import { Logo } from '@/components/logo';
 

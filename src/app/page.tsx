@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -68,7 +67,7 @@ export default function HomePage() {
             </div>
             <div className="relative animate-fade-in-up [animation-delay:200ms]">
                 <Image
-                  src="https://picsum.photos/seed/test-center/800/600"
+                  src="https://picsum.photos/seed/cbt-exam/800/600"
                   alt="Students taking an exam in a computer lab"
                   width={800}
                   height={600}
@@ -128,7 +127,7 @@ export default function HomePage() {
                 </div>
                  <div className="order-1 lg:order-2 animate-fade-in-up [animation-delay:200ms]">
                     <Image
-                        src="https://picsum.photos/seed/computer-lab/800/700"
+                        src="https://picsum.photos/seed/computer-exam/800/700"
                         alt="A person working on a computer in a modern office"
                         width={800}
                         height={700}
