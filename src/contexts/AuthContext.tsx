@@ -1,4 +1,3 @@
-
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
@@ -14,6 +13,7 @@ interface AuthContextType {
   loading: boolean;
   role: UserRole;
   roleLoading: boolean;
+  error: Error | null;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -21,40 +21,78 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   role: null,
   roleLoading: true,
+  error: null,
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, loading] = useAuthState(auth);
+  const [user, loading, error] = useAuthState(auth);
   const [role, setRole] = useState<UserRole>(null);
   const [roleLoading, setRoleLoading] = useState(true);
+  const [roleError, setRoleError] = useState<Error | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchUserRole = async () => {
-      setRoleLoading(true);
-      if (user) {
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (userDoc.exists()) {
-          setRole(userDoc.data().role as UserRole);
-        } else {
-          // This case might happen if a user is created in Auth but not in Firestore.
-          setRole(null); 
+      if (!user) {
+        if (isMounted) {
+          setRole(null);
+          setRoleLoading(false);
         }
-      } else {
-        setRole(null);
+        return;
       }
-      setRoleLoading(false);
+
+      try {
+        setRoleLoading(true);
+        setRoleError(null);
+        
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        
+        if (isMounted) {
+          if (userDoc.exists()) {
+            setRole(userDoc.data().role as UserRole);
+          } else {
+            // This case might happen if a user is created in Auth but not in Firestore.
+            setRole(null);
+            console.warn('User document not found in Firestore');
+          }
+          setRoleLoading(false);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setRoleError(err as Error);
+          setRole(null);
+          setRoleLoading(false);
+          console.error('Error fetching user role:', err);
+        }
+      }
     };
 
     fetchUserRole();
+
+    // Cleanup function to prevent state updates on unmounted component
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
+  // Combine errors from useAuthState and our role fetching
+  const combinedError = error || roleError;
+
   return (
-    <AuthContext.Provider value={{ user, loading, role, roleLoading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      role, 
+      roleLoading, 
+      error: combinedError 
+    }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
+// This is the key fix - make sure useAuth is exported
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -62,3 +100,6 @@ export const useAuth = () => {
   }
   return context;
 };
+
+// Export the context itself as well in case it's needed
+export default AuthContext;
