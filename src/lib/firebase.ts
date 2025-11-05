@@ -21,6 +21,14 @@ let app: FirebaseApp;
 try {
     app = getApp();
 } catch (e) {
+    // If any required env is missing, log a helpful message to the console in dev
+    if (typeof window !== 'undefined') {
+        const missing = Object.entries(firebaseConfig).filter(([, v]) => !v).map(([k]) => k);
+        if (missing.length) {
+            // eslint-disable-next-line no-console
+            console.warn('Firebase config missing the following env vars:', missing.join(', '));
+        }
+    }
     app = initializeApp(firebaseConfig);
 }
 

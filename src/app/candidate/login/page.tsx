@@ -19,7 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from 'lucide-react';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 export default function CandidateLoginPage() {
   const [email, setEmail] = useState('');
@@ -45,7 +45,32 @@ export default function CandidateLoginPage() {
        toast({ title: "Login Successful", description: "Redirecting to your dashboard..." });
        router.push('/candidate/dashboard');
     } catch(error: any) {
-        toast({ variant: "destructive", title: "Login Failed", description: error.message });
+        const code = error?.code || '';
+
+        // Temporary debug logs - remove when issue is resolved
+        try {
+          // eslint-disable-next-line no-console
+          console.debug('Candidate sign-in failed', { code, message: error?.message, online: typeof navigator !== 'undefined' ? navigator.onLine : 'unknown' });
+          // quick same-origin fetch to help diagnose network routing (will fail if offline)
+          if (typeof window !== 'undefined') {
+            fetch('/favicon.ico', { method: 'HEAD', cache: 'no-store' })
+              .then(res => console.debug('favicon check', { ok: res.ok, status: res.status }))
+              .catch(err => console.debug('favicon check failed', err));
+          }
+        } catch (logErr) {
+          // eslint-disable-next-line no-console
+          console.debug('Error while logging sign-in failure', logErr);
+        }
+
+        if (code === 'auth/network-request-failed') {
+          toast({ variant: "destructive", title: "Network Error", description: "Unable to reach authentication server. Check your internet connection and try again." });
+        } else if (code === 'auth/user-not-found') {
+          toast({ variant: "destructive", title: "User not found", description: "No account found with this email. Please sign up." });
+        } else if (code === 'auth/wrong-password') {
+          toast({ variant: "destructive", title: "Incorrect password", description: "The password you entered is incorrect." });
+        } else {
+          toast({ variant: "destructive", title: "Login Failed", description: error.message });
+        }
     } finally {
         setLoading(false);
     }

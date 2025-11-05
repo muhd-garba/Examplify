@@ -50,7 +50,21 @@ export default function CandidateSignUpPage() {
       router.push('/candidate/dashboard');
 
     } catch (error: any) {
-      toast({ variant: "destructive", title: "Sign Up Failed", description: error.message });
+      // Provide friendlier messages for common Firebase Auth errors
+      const code = error?.code || '';
+      if (code === 'auth/email-already-in-use') {
+        toast({
+          variant: "destructive",
+          title: "Email already in use",
+          description: "An account with this email already exists. Try signing in or reset your password.",
+        });
+      } else if (code === 'auth/invalid-email') {
+        toast({ variant: "destructive", title: "Invalid email", description: "Please enter a valid email address." });
+      } else if (code === 'auth/weak-password') {
+        toast({ variant: "destructive", title: "Weak password", description: "Password should be at least 6 characters." });
+      } else {
+        toast({ variant: "destructive", title: "Sign Up Failed", description: error.message });
+      }
     } finally {
       setLoading(false);
     }
